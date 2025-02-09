@@ -6,80 +6,28 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import init_params as ip
-import integrate_spmfdm as integrate_spmfdm
+import integrate_spmfdm
 import custom_lstm
 import helper_func as hf
 
 
 
-if __name__ == '__main__':
-    # Set default dtype to float32
-    torch.set_default_dtype(torch.float)
-    # PyTorch random number generator
-    torch.manual_seed(1234)
-    # Random number generators in other libraries
-    np.random.seed(1234)
-
-    load = False
-    save = True
-    suffix = 'cell1_prof1245'
-
-    # If we have a GPU available, we'll set our device to GPU
-    is_cuda = torch.cuda.is_available()
-    if is_cuda:
-        device = torch.device("cuda")
-        torch.set_default_device('cuda')
-    else:
-        device = torch.device("cpu")
-    print(device)
+def train(cfg, device):
+    torch.set_default_dtype(torch.float)  # Set default dtype to float32
+    torch.manual_seed(cfg['seed'])  # PyTorch random number generator
+    np.random.seed(cfg['seed'])  # Random number generators in other libraries
 
     'Setting'
-    train_data_type = [1, 2, 4, 5]  # 1:UDDS, 2:FUDS, 3:US06, 4:CC, 5:CC2
-    val_data_type = [3]  #1:UDDS, 2:FUDS, 3:US06
-    batch_num = 1  # number to divide each dataset for batch training
-    loss_type = 1  # 0 = traditional NN, 1 = PINN
-    n_epochs = int(50000)
-    input_normalization = True
-    std_current = 38  # standard deviation of current data in Ampere (UDDS)
-    std_voltage = 0.16  # standard deviation of voltage data in Volt (UDDS)
-    noise = 0.03  # the magnitude of white noise to standard deviation of data
-    learning_rate = 3e-04
-    n_r = 20  # number of discrete points along with the particle's radius including surface but excluding r=0
     input_size = 2  # [I, Vt]
-    output_size = n_r - 1  # the number of outputs per NN model, i.e., [cs(r=1), ..., cs(r=Nr-1)] for anode or cathode
-    k = 100  # number of data points in inputs [i[t]...i[t+k], vt[t]...vt[t+k]] to predict initial cond z[t] and vc[t]
-    integrator_type = 1  # 0 for NeuralODE's dopri5, 1 for custom RK4
-    h = 0.5  # Step size for integration
-    OneC = 29.601016543579075  # [Ah/m^2]
-    max_Crate = 4
-    V_upper = 4.05
-    V_lower = 2.5
-    cell_no = 1
-
-    'LSTM specific setting'
-    hidden_size_lstm = 64  # number of node in a hidden layer
-    n_lstm_layers = 1  # number of hidden layer in LSTM
-
-    'FCN specific setting'
-    activation_func = 2  # 1 = ReLU, 2 = Tanh
-    hidden_size_fc = 600  # number of neurons in a fully connected layer after LSTM layer (0 if no FC layer)
-    n_fc_layers = 1  # number of hidden layer in FCN
-    weight_init = 1  # 1 = default, 2 = xavier_normal_, 3 = xavier_uniform_
-    bias_init = 2  # 1 = default, 2 = zeros, 3 = ones/100
+    output_size = cfg['n_r'] - 1  # number of outputs per NN, i.e., [cs(r=1), ..., cs(r=Nr-1)] for anode or cathode
+    k = cfg['k']
 
     'Set battery parameters and loss weights (TBD: need to modify parameter for cell 2)'
-    p = ip.InitParams()
-    if cell_no == 2:
-        p.nLi_s = 2.5 * 0.8
-        p.R_f_n = 1e-3 * 1.2
-        p.k_n = 1.764e-11 * p.Faraday * 0.8
-        p.k_p = 6.667e-11 * p.Faraday * 0.8
-        p.D_s_n = 3.9e-14 * 0.8
-        p.D_s_p = 1e-13 * 0.8
+    p = ip.InitParams(cfg)
 
     'Import data (concatenated) and the list of data length'
-    train_data, train_data_length = hf.load_data_spmfdm(train_data_type, states=True, cell=cell_no)
-    val_data, val_data_length = hf.load_data_spmfdm(val_data_type, states=True, cell=cell_no)
+    train_data, train_data_length = hf.load_data_spmfdm(cfg['train_data_type'], states=True, cell=cfg['cell_target'])
+    val_data, val_data_length = hf.load_data_spmfdm(cfg['val_data_type'], states=True, cell=cfg['cell_target'])
 
     cn_train = train_data.iloc[:, 7:28]
     cp_train = train_data.iloc[:, 28:]
@@ -143,41 +91,33 @@ if __name__ == '__main__':
     'Normalize inputs by max-min values of training data'
     ub = torch.ones((u_train.shape[2]))
     lb = torch.zeros((u_train.shape[2]))
-    if input_normalization:
-        ub[0] = OneC * max_Crate
-        lb[0] = -OneC * max_Crate
-        ub[1] = V_upper
-        lb[1] = V_lower
+    ub[0] = cfg['OneC'] * cfg['max_Crate']
+    lb[0] = - cfg['OneC'] * cfg['max_Crate']
+    ub[1] = cfg['V_upper']
+    lb[1] = cfg['V_lower']
     for j in range(train_data_size):
         u_train[j, :, :] = (u_train[j, :, :] - lb) / (ub - lb)
     for j in range(val_data_size):
         u_val[j, :, :] = (u_val[j, :, :] - lb) / (ub - lb)
 
-    'Use second half (= another k time steps) of sequential data for RK4 integration and subsequent loss calculation'
-    i_train_seq_sf = i_train_seq[:, k:]
-    vt_sim_train_seq_sf = vt_sim_train_seq[:, k:]
-    i_val_seq_sf = i_val_seq[:, k:]
-    vt_sim_val_seq_sf = vt_sim_val_seq[:, k:]
-
     'Declaring lists for tracing losses'
-    losses = np.zeros(n_epochs)
-    val_losses = np.zeros(n_epochs)
+    losses = np.zeros(cfg['epochs'])
     last_epoch = -1
 
     'Enable when loading saved models'
-    if load:
-        df = pd.read_csv('training_results/pilstm_spmfdm_' + str(k) + 'k_loss_'+suffix+'.csv')
+    if cfg['load']:
+        df = pd.read_csv('training_results/pilstm_spmfdm_' + str(k) + 'k_loss_'+cfg['suffix']+'.csv')
         last_epoch = df.losses[df.losses != 0].index[-1]
         losses[0:last_epoch + 1] = df.losses[0:last_epoch + 1]
 
     'Defining NN layers'
-    fc_layers = np.array([hidden_size_lstm])  # take output of LSTM layer as input for FC layer
-    for layer in range(n_fc_layers):
-        fc_layers = np.append(fc_layers, hidden_size_fc)
+    fc_layers = np.array(cfg['hidden_lstm'])  # take output of LSTM layer as input for FC layer
+    for layer in range(cfg['layer_fc']):
+        fc_layers = np.append(fc_layers, cfg['hidden_fc'])
     fc_layers = np.append(fc_layers, output_size)  # output = [xn_1(t+k) ... xn_Q(t+k), xp_1(t+k) ... xp_Q(t+k)]
 
     'Creating models'
-    integrator = integrate_spmfdm.IntegrateSPM(p, integrator_type, n_r, h)
+    integrator = integrate_spmfdm.IntegrateSPM(p, cfg)
     max_values = torch.tensor([p.c_s_n_max, p.c_s_p_max])
     min_values = torch.tensor([0.0, 0.0])
 
@@ -186,15 +126,14 @@ if __name__ == '__main__':
     for i in range(2):  # each for anode and cathode
         max_value = max_values[i]
         min_value = min_values[i]
-        nn_model = custom_lstm.CustomLSTM(fc_layers, activation_func, weight_init, bias_init, input_size,
-                                          hidden_size_lstm, n_lstm_layers, max_value, min_value)
+        nn_model = custom_lstm.CustomLSTM(cfg, fc_layers, input_size, max_value, min_value)
         nn_models.append(nn_model)
-        optimizer = optim.Adam(nn_model.parameters(), lr=learning_rate)
+        optimizer = optim.Adam(nn_model.parameters(), lr=cfg['lrate'])
         optimizers.append(optimizer)
 
-    if load:
-        nn_models[0].load_state_dict(torch.load('training_results/pilstm_spmfdm_n_' + suffix + '.pth', map_location=torch.device('cpu')))
-        nn_models[1].load_state_dict(torch.load('training_results/pilstm_spmfdm_p_' + suffix + '.pth', map_location=torch.device('cpu')))
+    if cfg['load']:
+        nn_models[0].load_state_dict(torch.load('training_results/pilstm_spmfdm_n_' + cfg['suffix'] + '.pth', map_location=torch.device('cpu')))
+        nn_models[1].load_state_dict(torch.load('training_results/pilstm_spmfdm_p_' + cfg['suffix'] + '.pth', map_location=torch.device('cpu')))
 
     u_train.requires_grad = True
     start_time = time.time()
@@ -202,7 +141,7 @@ if __name__ == '__main__':
     mse = nn.MSELoss()
 
     print('Start training')
-    for epoch in range(last_epoch + 1, n_epochs):
+    for epoch in range(last_epoch + 1, cfg['epochs']):
         start = 0
         start_seq = 0
         loss_epoch = 0
@@ -214,7 +153,7 @@ if __name__ == '__main__':
             i_data = i_train_seq[start_seq:end_seq, k-1]
             vt_sim_data = vt_sim_train_seq[start_seq:end_seq, k-1]
             len_data = u_data.shape[0]
-            len_batch = int(len_data / batch_num)
+            len_batch = int(len_data / cfg['batches'])
             x_data_true = cx_train.iloc[start:end, :]
             x_data_true = x_data_true.iloc[k-1:-k,:]  # select data in the time steps to be predicted from rnn
             x_data_true = torch.tensor(x_data_true.values).float()
@@ -226,15 +165,14 @@ if __name__ == '__main__':
             cs_bar_p_data = torch.zeros(len_data)
             vt_data = torch.zeros(len_data)
             nLi_data = torch.zeros(len_data)
-            x_data = torch.zeros(len_data, (n_r-1)*2)
 
             #variables for storing losses at each batch iteration
             loss_data = 0
 
-            for batch in range(batch_num):
+            for batch in range(cfg['batches']):
                 # selecting the data for the batch
                 batch_start = batch*len_batch
-                if batch < batch_num - 1:
+                if batch < cfg['batches'] - 1:
                     batch_end = (batch+1)*len_batch
                 else:
                     batch_end = None
@@ -243,13 +181,11 @@ if __name__ == '__main__':
                 len_batch = u_batch.shape[0]
 
                 # creating tensors for storing predictions
-                x_batch = torch.zeros(len_batch, (n_r - 1) * 2)
-                cs_n_batch = torch.zeros(len_batch, n_r + 1)
-                cs_p_batch = torch.zeros(len_batch, n_r + 1)
+                x_batch = torch.zeros(len_batch, (cfg['n_r'] - 1) * 2)
 
                 # feed forward pass to make prediction
                 for i in range(2):
-                    x_batch[:, i * (n_r - 1):(i + 1) * (n_r - 1)] = nn_models[i](u_batch)
+                    x_batch[:, i * (cfg['n_r'] - 1):(i + 1) * (cfg['n_r'] - 1)] = nn_models[i](u_batch)
 
                 # for testing purpose
                 loss_x = torch.sqrt(mse(x_batch, x_data_true[batch_start:batch_end, :]))
@@ -286,10 +222,10 @@ if __name__ == '__main__':
                 nLi_data[batch_start:batch_end] = nLi.squeeze(1)
                 loss_data += loss_batch.data
 
-            if epoch % 25 == 0:
+            if epoch % 100 == 0:
                 print(f'Finished epoch {epoch}, training loss {loss_data}')
 
-            if epoch % 5000 == 1 or epoch == n_epochs - 1:
+            if epoch % 5000 == 1 or epoch == cfg['epochs'] - 1:
                 css_n_sim = css_n_sim_train_seq[start_seq:end_seq, k-1]
                 cs_ave_n_sim = cs_ave_n_sim_train_seq[start_seq:end_seq, k-1]
                 css_p_sim = css_p_sim_train_seq[start_seq:end_seq, k-1]
@@ -305,34 +241,33 @@ if __name__ == '__main__':
                 hf.set_fig2(ax, 0, 2, t_data, vt_data.detach().cpu().numpy(), vt_sim, 'Voltage')
                 hf.set_fig(ax, 0, 3, losses[:epoch], 'epoch', 'loss')
                 ax[1, 3].set_yscale("log")
-                plt.suptitle(f"Estimated Initial conditions for training data, lr= {learning_rate} at epoch {epoch} "
-                             f"(N_r = {n_r}, k = {k}, LSTM size = {hidden_size_lstm}, FC size = {hidden_size_fc}, "
-                             f"noise = {noise}, step size = {h})")
+                plt.suptitle(f"Estimated Initial conditions for training data, lr= {cfg['lrate']} at epoch {epoch} "
+                             f"(N_r = {cfg['n_r']}, k = {k}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']}, "
+                             f"noise = {cfg['noise']}, step size = {cfg['h']})")
                 plt.show()
-                if save:
-                    torch.save(nn_models[0].state_dict(), 'training_results/lstm_spmfdm_n_' + suffix + '.pth')
-                    torch.save(nn_models[1].state_dict(), 'training_results/lstm_spmfdm_p_' + suffix + '.pth')
-                    df = pd.DataFrame({"losses": losses}) #, "nLi": nLi_hist})
-                    df.to_csv('training_results/lstm_spmfdm_' + suffix + '.csv', index=False)
+                if cfg['save']:
+                    torch.save(nn_models[0].state_dict(), 'training_results/lstm_spmfdm_n_' + cfg['suffix'] + '.pth')
+                    torch.save(nn_models[1].state_dict(), 'training_results/lstm_spmfdm_p_' + cfg['suffix'] + '.pth')
+                    df = pd.DataFrame({"losses": losses})
+                    df.to_csv('training_results/lstm_spmfdm_' + cfg['suffix'] + '.csv', index=False)
 
             start = end
             start_seq = end_seq
             loss_epoch += loss_data
 
         losses[epoch] = loss_epoch
-        # val_losses[epoch] = loss_val.item()
 
     elapsed = time.time() - start_time
     print('Training time: %.2f' % elapsed)
 
     max_batch_size = 2000
     with torch.no_grad():
-        x_train = torch.zeros(u_train.shape[0], (n_r - 1) * 2)
-        x_val = torch.zeros(u_val.shape[0], (n_r - 1) * 2)
+        x_train = torch.zeros(u_train.shape[0], (cfg['n_r'] - 1) * 2)
+        x_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2)
 
         for i in range(2):
-            state_start = i * (n_r - 1)
-            state_end = (i + 1) * (n_r - 1)
+            state_start = i * (cfg['n_r'] - 1)
+            state_end = (i + 1) * (cfg['n_r'] - 1)
             start_seq = 0
             for data in train_data_length:
                 end_seq = start_seq + data - 2 * k + 1
@@ -371,8 +306,8 @@ if __name__ == '__main__':
         hf.set_fig2(ax, 1, 1, t_val, cs_ave_p_sim_val_seq[:, k - 1], cs_bar_p_val.detach().cpu().numpy(), 'Cs_ave_p')
         hf.set_fig2(ax, 0, 2, t_val, vt_sim_val_seq[:, k - 1], vt_val.detach().cpu().numpy(), 'Voltage')
         hf.set_fig(ax, 1, 2, losses, 'epoch', 'loss')
-        plt.suptitle(f"Estimated Initial conditions for training data"
-                     f"(N_r = {n_r}, k = {k}, LSTM size = {hidden_size_lstm}, FC size = {hidden_size_fc})")
+        plt.suptitle(f"Estimated Initial conditions for validation data"
+                     f"(N_r = {cfg['n_r']}, k = {k}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']})")
         plt.show()
 
 

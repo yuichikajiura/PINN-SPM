@@ -139,7 +139,7 @@ def train(cfg, device):
     fc_layers = np.append(fc_layers, output_size)  # output = [xn_1(t+k) ... xn_Q(t+k), xp_1(t+k) ... xp_Q(t+k)]
 
     'Creating models'
-    integrator = integrate_spmfdm.IntegrateSPM(p, cfg['n_r'], cfg['h'], cfg['integ_type'])
+    integrator = integrate_spmfdm.IntegrateSPM(p, cfg)
     max_values = torch.tensor([p.c_s_n_max, p.c_s_p_max])
     min_values = torch.tensor([0.0, 0.0])
 
@@ -282,7 +282,7 @@ def train(cfg, device):
 
                 for params in integrator.parameters():
                     params.data.clamp_(cfg['p_search_lower'],
-                                       cfg['p_search_upper'])  # constraint params between 67% and 150% of original
+                                       cfg['p_search_upper'])  # constraint the range of params to be searched
 
                 # storing result for printing/visualization purpose
                 loss_vt_data += loss_vt.item()

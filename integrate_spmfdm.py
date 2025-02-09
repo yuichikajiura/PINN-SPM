@@ -6,12 +6,12 @@ import spm_fdm
 
 
 class IntegrateSPM(nn.Module):
-    def __init__(self, p, n_r, h, integ_type=0):
+    def __init__(self, p, cfg):
         super().__init__()
-        self.spm_model = spm_fdm.SPMFdm(p, n_r)
-        self.n_r = n_r
+        self.spm_model = spm_fdm.SPMFdm(p, cfg['n_r'])
+        self.n_r = cfg['n_r']
         self.p = p
-        self.delta_r_bar = 1 / n_r
+        self.delta_r_bar = 1 / self.n_r
         self.R_f_n_init = p.R_f_n
         self.k_n_init = p.k_n
         self.k_p_init = p.k_p
@@ -26,12 +26,18 @@ class IntegrateSPM(nn.Module):
         self.D_s_p_scaled = torch.tensor([p.D_s_p / self.D_s_p_init], requires_grad=True).float()
         self.nLi_s_scaled = torch.tensor([p.nLi_s / self.nLi_s_init], requires_grad=True).float()
 
-        self.R_f_n_scaled = nn.Parameter(self.R_f_n_scaled)
-        self.k_n_scaled = nn.Parameter(self.k_n_scaled)
-        self.k_p_scaled = nn.Parameter(self.k_p_scaled)
-        self.D_s_n_scaled = nn.Parameter(self.D_s_n_scaled)
-        self.D_s_p_scaled = nn.Parameter(self.D_s_p_scaled)
-        self.nLi_s_scaled = nn.Parameter(self.nLi_s_scaled)
+        if cfg['p_targets'][0]:
+            self.nLi_s_scaled = nn.Parameter(self.nLi_s_scaled)
+        if cfg['p_targets'][1]:
+            self.R_f_n_scaled = nn.Parameter(self.R_f_n_scaled)
+        if cfg['p_targets'][2]:
+            self.k_n_scaled = nn.Parameter(self.k_n_scaled)
+        if cfg['p_targets'][3]:
+            self.k_p_scaled = nn.Parameter(self.k_p_scaled)
+        if cfg['p_targets'][4]:
+            self.D_s_n_scaled = nn.Parameter(self.D_s_n_scaled)
+        if cfg['p_targets'][5]:
+            self.D_s_p_scaled = nn.Parameter(self.D_s_p_scaled)
 
         self.alpha_n = self.alpha(p.D_s_n, p.R_s_n)
         self.alpha_p = self.alpha(p.D_s_p, p.R_s_p)
@@ -41,10 +47,10 @@ class IntegrateSPM(nn.Module):
         self.matBn = self.alpha_n * self.beta_n * self.spm_model.matB
         self.matAp = self.alpha_p * self.spm_model.matA
         self.matBp = self.alpha_p * self.beta_p * self.spm_model.matB
-        self.h = h  # step size for integrator
+        self.h = cfg['h']  # step size for integrator
 
         'Setting up integration layer'
-        if integ_type == 0:
+        if cfg['integ_type'] == 0:
             self.integration = integrator.RK4(self.spm_model, h=self.h)
         else:
             self.integration = integrator.Naive(self.spm_model, h=self.h)

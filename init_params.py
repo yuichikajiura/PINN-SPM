@@ -25,10 +25,8 @@ class InitParams:
         self.alph = 0.5  # Charge transfer coefficients
         self.R_f_n = 1e-3  # Resistivity of SEI layer, [Ohms * m ^ 2]
         self.R_f_p = 0  # Resistivity of SEI layer, [Ohms * m ^ 2]
-        # self.k_n = 1e-5  # Reaction rate in neg.electrode, [(A / m ^ 2) * (mol ^ 3 / mol) ^ (1 + alpha)]
-        # self.k_p = 3e-7  # Reaction rate in pos.electrode, [(A / m ^ 2) * (mol ^ 3 / mol) ^ (1 + alpha)]
-
-        # Reaction rate constant[m2.5mol - 0.5s - 1]*[C / mol] = [(A / m ^ 2) * (m ^ 3 / mol) ^ (1.5)] from https: // github.com / davidhowey / Spectral_li - ion_SPM / blob / master / model_parameters / get_modelData.m
+        # Reaction rate constant[m2.5mol - 0.5s - 1]*[C / mol] = [(A / m ^ 2) * (m ^ 3 / mol) ^ (1.5)] from
+        # https: // github.com / davidhowey / Spectral_li - ion_SPM / blob / master / model_parameters / get_modelData.m
         self.k_n = 1.764e-11 * self.Faraday
         self.k_p = 6.667e-11 * self.Faraday
 
@@ -45,6 +43,7 @@ class InitParams:
         self.nLi_s = 2.50  # Total moles of lithium in solid phase[mol]
         self.c_e = 1e3  # Fixed electrolyte concentration for SPM, [mol / m ^ 3]
 
+        # Set true value of the parameter to be estimated
         if cfg['cell_target'] == 1:  # fresh cell
             self.nLi_s_true = self.nLi_s
             self.R_f_n_true = self.R_f_n
@@ -60,6 +59,7 @@ class InitParams:
             self.D_s_n_true = self.D_s_n * 0.8
             self.D_s_p_true = self.D_s_p * 0.8
 
+        # Correct parameter if pre-trained NN is trained on degraded cell
         if cfg['cell_known'] == 2:  # degraded cell
             self.nLi_s = self.nLi_s * 0.8
             self.R_f_n = self.R_f_n * 1.2
@@ -67,3 +67,18 @@ class InitParams:
             self.k_p = self.k_p * 0.8
             self.D_s_n = self.D_s_n * 0.8
             self.D_s_p = self.D_s_p * 0.8
+
+        # Set true value if the parameter is not to be estimated
+        if not cfg['p_targets'][0]:
+            self.nLi_s = self.nLi_s_true
+        if not cfg['p_targets'][1]:
+            self.R_f_n = self.R_f_n_true
+        if not cfg['p_targets'][2]:
+            self.k_n = self.k_n_true
+        if not cfg['p_targets'][3]:
+            self.k_p = self.k_p_true
+        if not cfg['p_targets'][4]:
+            self.D_s_n = self.D_s_n_true
+        if not cfg['p_targets'][5]:
+            self.D_s_p = self.D_s_p_true
+
