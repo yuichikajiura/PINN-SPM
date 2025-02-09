@@ -79,17 +79,17 @@ def load_data_pade(data_type, pade_order):
     for j in data_type:
         if j == 1:
             if pade_order == 2:
-                data = pd.read_csv("data/SPM_Pade2nd_simulation_UDDSx2.csv",
+                data = pd.read_csv("data/SPM_Pade2nd_simulation_UDDS.csv",
                                    names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
                                           'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p',
                                           'Xn_1', 'Xn_2', 'Xp_1', 'Xp_2'])
             elif pade_order == 3:
-                data = pd.read_csv("data/SPM_Pade3rd_simulation_UDDSx2.csv",
+                data = pd.read_csv("data/SPM_Pade3rd_simulation_UDDS.csv",
                                    names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
                                           'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p',
                                           'Xn_1', 'Xn_2', 'Xn_3', 'Xp_1', 'Xp_2', 'Xp_3'])
             elif pade_order == 4:
-                data = pd.read_csv("data/SPM_Pade4th_simulation_UDDSx2.csv",
+                data = pd.read_csv("data/SPM_Pade4th_simulation_UDDS.csv",
                                    names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
                                           'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p',
                                           'Xn_1', 'Xn_2', 'Xn_3', 'Xn_4', 'Xp_1', 'Xp_2', 'Xp_3', 'Xp_4'])
@@ -108,15 +108,15 @@ def load_data_spmfdm(data_type, states=False, cell=1):
     if states:
         for j in data_type:
             if j == 1:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_UDDSx2_cell"+str(cell)+".csv", header=None)
+                data = pd.read_csv("data/SPM_FDM_nr20_simulation_UDDS_cell"+str(cell)+".csv", header=None)
             elif j == 2:
                 data = pd.read_csv("data/SPM_FDM_nr20_simulation_FUDS_cell"+str(cell)+".csv", header=None)
             elif j == 3:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_US06_Extended_cell"+str(cell)+".csv", header=None)
+                data = pd.read_csv("data/SPM_FDM_nr20_simulation_Charge2_cell" + str(cell) + ".csv", header=None)
             elif j == 4:
                 data = pd.read_csv("data/SPM_FDM_nr20_simulation_Charge_cell"+str(cell)+".csv", header=None)
             elif j == 5:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_Charge2_cell" + str(cell) + ".csv", header=None)
+                data = pd.read_csv("data/SPM_FDM_nr20_simulation_US06_Extended_cell"+str(cell)+".csv", header=None)
             else:
                 raise Exception("Data type must be within 1-4")
             df = pd.concat([df, data], ignore_index=True)
@@ -124,7 +124,7 @@ def load_data_spmfdm(data_type, states=False, cell=1):
     else:
         for j in data_type:
             if j == 1:
-                data = pd.read_csv("data/SPM_FDM_nr100_simulation_UDDSx2_cell"+str(cell)+".csv",
+                data = pd.read_csv("data/SPM_FDM_nr100_simulation_UDDS_cell"+str(cell)+".csv",
                                    names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
                                           'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
             elif j == 2:

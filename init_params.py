@@ -1,5 +1,5 @@
 class InitParams:
-    def __init__(self):
+    def __init__(self, cfg):
         'Battery parameters'
         # Geometric params
         self.L_n = 100e-6  # Thickness of negative electrode [m]
@@ -44,3 +44,26 @@ class InitParams:
                          / self.Faraday  # Max concentration in cathode, [mol / m ^ 3]
         self.nLi_s = 2.50  # Total moles of lithium in solid phase[mol]
         self.c_e = 1e3  # Fixed electrolyte concentration for SPM, [mol / m ^ 3]
+
+        if cfg['cell_target'] == 1:
+            self.nLi_s_true = self.nLi_s
+            self.R_f_n_true = self.R_f_n
+            self.k_n_true = self.k_n
+            self.k_p_true = self.k_p
+            self.D_s_n_true = self.D_s_n
+            self.D_s_p_true = self.D_s_p
+        else:
+            self.nLi_s_true = self.nLi_s * 0.8
+            self.R_f_n_true = self.R_f_n * 1.2
+            self.k_n_true = self.k_n * 0.8
+            self.k_p_true = self.k_p * 0.8
+            self.D_s_n_true = self.D_s_n * 0.8
+            self.D_s_p_true = self.D_s_p * 0.8
+
+        if cfg['cell_known'] == 2:
+            self.nLi_s = self.nLi_s * 0.8
+            self.R_f_n = self.R_f_n * 1.2
+            self.k_n = self.k_n * 0.8
+            self.k_p = self.k_p * 0.8
+            self.D_s_n = self.D_s_n * 0.8
+            self.D_s_p = self.D_s_p * 0.8

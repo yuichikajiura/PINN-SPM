@@ -4,42 +4,28 @@ import torch
 
 
 class CustomLSTM(nn.Module):
-    def __init__(self, fc_layers, activation_func, weight_init, bias_init, input_size, hidden_size_lstm,
-                 n_lstm_layers, max_values, min_values=0.0):
+    def __init__(self, cfg, fc_layers, input_size, max_values, min_values=0.0):
         super().__init__()
         self.max_values = max_values  # for normalization for the outputs to roughly range [-1 1]
         self.min_values = min_values  # for normalization for the outputs to roughly range [-1 1]
 
         'Setting up LSTM layer'
         # defining some parameters
-        self.hidden_size_lstm = hidden_size_lstm
-        self.n_lstm_layers = n_lstm_layers
+        self.cfg = cfg
         # defining layers
-        self.lstm = nn.LSTM(input_size, hidden_size_lstm, n_lstm_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size, cfg['hidden_lstm'], cfg['layer_lstm'], batch_first=True)
 
         'Setting up FC layer after the LSTM layer'
         # activation  function
-        if activation_func == 1:
+        if cfg['activation'] == 'relu':
             self.activation_fc = nn.ReLU()
-        else:
+        elif cfg['activation'] == 'tanh':
             self.activation_fc = nn.Tanh()
+        else:
+            raise ValueError("activation"+cfg['activation']+"is not defined")
 
         # Initialize FC layer as a list using nn.Modulelist
         self.fc = nn.ModuleList([nn.Linear(fc_layers[i], fc_layers[i + 1]) for i in range(len(fc_layers) - 1)])
-
-        # weights/biases Initialization for FC layer
-        for i in range(len(fc_layers) - 1):
-            if weight_init == 2:
-                nn.init.xavier_normal_(self.fc[i].weight.data)
-            elif weight_init == 3:
-                nn.init.xavier_uniform_(self.fc[i].weight.data)
-
-            # set biases to zero
-            if bias_init == 2:
-                nn.init.zeros_(self.fc[i].bias.data)
-            elif bias_init == 3:
-                nn.init.ones_(self.fc[i].bias.data)
-                self.fc[i].bias.data = self.fc[i].bias.data / 100
 
     def forward(self, u_seq):
         batch_size = u_seq.size(0)
@@ -64,5 +50,5 @@ class CustomLSTM(nn.Module):
     def init_hidden(self, batch_size):
         # This method generates the first hidden state of zeros which we'll use in the forward pass
         # We'll send the tensor holding the hidden state to the device we specified earlier as well
-        hidden = torch.zeros(self.n_lstm_layers, batch_size, self.hidden_size_lstm)
+        hidden = torch.zeros(self.cfg['layer_lstm'], batch_size, self.cfg['hidden_lstm'])
         return hidden
