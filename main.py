@@ -37,7 +37,7 @@ if __name__ == '__main__':
         device = torch.device("cpu")
         print('No GPU available')
 
-    if cfg['model'] == 'pinn':
+    if cfg['method'] == 'pinn':
         train_pinn.train(cfg, device)
     else:
         train_nn.train(cfg, device)

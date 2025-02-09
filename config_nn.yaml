@@ -1,4 +1,4 @@
-model: nn # pinn or nn
+method: nn # pinn or nn
 
 # Load/Save
 load: False  # Load pre-trained NN or not
@@ -20,12 +20,12 @@ h: 1   # Step size for integration (an integer 1 or greater, need to be a common
 integ_type: 1   # 0 for RK4 (default), 1 for Naive
 
 # Data
-train_data_type:  # 1:UDDS, 2:FUDS, 3:CC, 4:CC2,  5:US06(Extended)
+train_data_type:  # 1:UDDS, 2:FUDS, 3:CC, 4:CC2, 5:US06(Extended)
   - 1
   - 2
   - 3
   - 4
-val_data_type:  # 1:UDDS, 2:FUDS, 3:CC, 4:CC2,  5:US06(Extended)
+val_data_type:  # 1:UDDS, 2:FUDS, 3:CC, 4:CC2, 5:US06(Extended)
   - 5
 std_current: 38  # standard deviation of current data in Ampere (UDDS)
 std_voltage: 0.16   # standard deviation of voltage data in Volt (UDDS)

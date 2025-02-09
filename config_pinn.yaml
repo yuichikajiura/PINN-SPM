@@ -1,4 +1,4 @@
-model: pinn # pinn or nn
+method: pinn # pinn or nn
 
 # Load/Save
 load_nn: False  # Load pre-trained NN or not
