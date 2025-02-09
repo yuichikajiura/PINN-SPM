@@ -25,8 +25,6 @@ def train(cfg, device):
 
     'Set battery parameters and loss weights'
     p = ip.InitParams(cfg)
-    p_search_upper = 2
-    p_search_lower = 0.5
 
     'Import data (concatenated) and the list of data length'
     train_data, train_data_length = hf.load_data_spmfdm(cfg['train_data_type'], cell=cfg['cell_target'])
@@ -283,8 +281,8 @@ def train(cfg, device):
                     optimizer.zero_grad()
 
                 for params in integrator.parameters():
-                    params.data.clamp_(p_search_lower,
-                                       p_search_upper)  # constraint params between 67% and 150% of original
+                    params.data.clamp_(cfg['p_search_lower'],
+                                       cfg['p_search_upper'])  # constraint params between 67% and 150% of original
 
                 # storing result for printing/visualization purpose
                 loss_vt_data += loss_vt.item()
