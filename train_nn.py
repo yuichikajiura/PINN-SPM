@@ -5,25 +5,13 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import init_params as ip
 import integrate_spmfdm
 import custom_lstm
 import helper_func as hf
 
 
 
-def train(cfg, device):
-    torch.set_default_dtype(torch.float)  # Set default dtype to float32
-    torch.manual_seed(cfg['seed'])  # PyTorch random number generator
-    np.random.seed(cfg['seed'])  # Random number generators in other libraries
-
-    'Setting'
-    input_size = 2  # [I, Vt]
-    output_size = cfg['n_r'] - 1  # number of outputs per NN, i.e., [cs(r=1), ..., cs(r=Nr-1)] for anode or cathode
-    k = cfg['k']
-
-    'Set battery parameters and loss weights (TBD: need to modify parameter for cell 2)'
-    p = ip.InitParams(cfg)
+def train(cfg, device, p):
 
     'Import data (concatenated) and the list of data length'
     train_data, train_data_length = hf.load_data_spmfdm(cfg['train_data_type'], states=True, cell=cfg['cell_target'])
@@ -59,34 +47,34 @@ def train(cfg, device):
     cs_ave_p_sim_val = val_data.iloc[:, 6]
 
     'Prepare sequential data'
-    i_train_seq = torch.from_numpy(hf.create_sequential(i_train, 2 * k, train_data_length)).float().to(device)
-    vt_sim_train_seq = torch.from_numpy(hf.create_sequential(vt_sim_train, 2 * k, train_data_length)).float().to(device)
-    t_train_seq = torch.from_numpy(hf.create_sequential(t_train, 2 * k, train_data_length)).float()
-    i_val_seq = torch.from_numpy(hf.create_sequential(i_val, 2 * k, val_data_length)).float().to(device)
-    vt_sim_val_seq = torch.from_numpy(hf.create_sequential(vt_sim_val, 2 * k, val_data_length)).float().to(device)
-    t_val_seq = torch.from_numpy(hf.create_sequential(t_val, 2 * k, val_data_length)).float()
+    i_train_seq = torch.from_numpy(hf.create_sequential(i_train, 2 * cfg['k'], train_data_length)).float().to(device)
+    vt_sim_train_seq = torch.from_numpy(hf.create_sequential(vt_sim_train, 2 * cfg['k'], train_data_length)).float().to(device)
+    t_train_seq = torch.from_numpy(hf.create_sequential(t_train, 2 * cfg['k'], train_data_length)).float()
+    i_val_seq = torch.from_numpy(hf.create_sequential(i_val, 2 * cfg['k'], val_data_length)).float().to(device)
+    vt_sim_val_seq = torch.from_numpy(hf.create_sequential(vt_sim_val, 2 * cfg['k'], val_data_length)).float().to(device)
+    t_val_seq = torch.from_numpy(hf.create_sequential(t_val, 2 * cfg['k'], val_data_length)).float()
 
     'Prepare data for true states for validation'
-    css_n_sim_train_seq = torch.from_numpy(hf.create_sequential(css_n_sim_train, 2 * k, train_data_length)).float()
-    css_p_sim_train_seq = torch.from_numpy(hf.create_sequential(css_p_sim_train, 2 * k, train_data_length)).float()
-    cs_ave_n_sim_train_seq = torch.from_numpy(hf.create_sequential(cs_ave_n_sim_train, 2 * k, train_data_length)).float()
-    cs_ave_p_sim_train_seq = torch.from_numpy(hf.create_sequential(cs_ave_p_sim_train, 2 * k, train_data_length)).float()
-    css_n_sim_val_seq = torch.from_numpy(hf.create_sequential(css_n_sim_val, 2 * k, val_data_length)).float()
-    css_p_sim_val_seq = torch.from_numpy(hf.create_sequential(css_p_sim_val, 2 * k, val_data_length)).float()
-    cs_ave_n_sim_val_seq = torch.from_numpy(hf.create_sequential(cs_ave_n_sim_val, 2 * k, val_data_length)).float()
-    cs_ave_p_sim_val_seq = torch.from_numpy(hf.create_sequential(cs_ave_p_sim_val, 2 * k, val_data_length)).float()
+    css_n_sim_train_seq = torch.from_numpy(hf.create_sequential(css_n_sim_train, 2 * cfg['k'], train_data_length)).float()
+    css_p_sim_train_seq = torch.from_numpy(hf.create_sequential(css_p_sim_train, 2 * cfg['k'], train_data_length)).float()
+    cs_ave_n_sim_train_seq = torch.from_numpy(hf.create_sequential(cs_ave_n_sim_train, 2 * cfg['k'], train_data_length)).float()
+    cs_ave_p_sim_train_seq = torch.from_numpy(hf.create_sequential(cs_ave_p_sim_train, 2 * cfg['k'], train_data_length)).float()
+    css_n_sim_val_seq = torch.from_numpy(hf.create_sequential(css_n_sim_val, 2 * cfg['k'], val_data_length)).float()
+    css_p_sim_val_seq = torch.from_numpy(hf.create_sequential(css_p_sim_val, 2 * cfg['k'], val_data_length)).float()
+    cs_ave_n_sim_val_seq = torch.from_numpy(hf.create_sequential(cs_ave_n_sim_val, 2 * cfg['k'], val_data_length)).float()
+    cs_ave_p_sim_val_seq = torch.from_numpy(hf.create_sequential(cs_ave_p_sim_val, 2 * cfg['k'], val_data_length)).float()
 
     'Each dataset has len(data) - 2 * k + 1 sequential datapoints'
-    train_data_size = sum(train_data_length) - (2 * k - 1) * len(train_data_length)
-    val_data_size = sum(val_data_length) - (2 * k - 1) * len(val_data_length)
+    train_data_size = sum(train_data_length) - (2 * cfg['k'] - 1) * len(train_data_length)
+    val_data_size = sum(val_data_length) - (2 * cfg['k'] - 1) * len(val_data_length)
 
     'Use first half (= k time steps) of sequential data for inputs for LSTM layer (to predict initial states)'
-    u_train = torch.zeros((train_data_size, k, input_size))  # (data_size, sequence, input_size([i, v]))
-    u_val = torch.zeros((val_data_size, k, input_size))  # (data_size, sequence, input_size([i, v]))
-    u_train[:, :, 0] = i_train_seq[:, :k]
-    u_train[:, :, 1] = vt_sim_train_seq[:, :k]
-    u_val[:, :, 0] = i_val_seq[:, :k]
-    u_val[:, :, 1] = vt_sim_val_seq[:, :k]
+    u_train = torch.zeros((train_data_size, cfg['k'], p.input_size))  # (data_size, sequence, input_size([i, v]))
+    u_val = torch.zeros((val_data_size, cfg['k'], p.input_size))  # (data_size, sequence, input_size([i, v]))
+    u_train[:, :, 0] = i_train_seq[:, :cfg['k']]
+    u_train[:, :, 1] = vt_sim_train_seq[:, :cfg['k']]
+    u_val[:, :, 0] = i_val_seq[:, :cfg['k']]
+    u_val[:, :, 1] = vt_sim_val_seq[:, :cfg['k']]
 
     'Normalize inputs by max-min values of training data'
     ub = torch.ones((u_train.shape[2]))
@@ -106,7 +94,7 @@ def train(cfg, device):
 
     'Enable when loading saved models'
     if cfg['load']:
-        df = pd.read_csv('training_results/pilstm_spmfdm_' + str(k) + 'k_loss_'+cfg['suffix']+'.csv')
+        df = pd.read_csv('training_results/pilstm_spmfdm_' + str(cfg['k']) + 'k_loss_'+cfg['suffix']+'.csv')
         last_epoch = df.losses[df.losses != 0].index[-1]
         losses[0:last_epoch + 1] = df.losses[0:last_epoch + 1]
 
@@ -114,7 +102,7 @@ def train(cfg, device):
     fc_layers = np.array(cfg['hidden_lstm'])  # take output of LSTM layer as input for FC layer
     for layer in range(cfg['layer_fc']):
         fc_layers = np.append(fc_layers, cfg['hidden_fc'])
-    fc_layers = np.append(fc_layers, output_size)  # output = [xn_1(t+k) ... xn_Q(t+k), xp_1(t+k) ... xp_Q(t+k)]
+    fc_layers = np.append(fc_layers, p.output_size)  # output = [xn_1(t+k) ... xn_Q(t+k), xp_1(t+k) ... xp_Q(t+k)]
 
     'Creating models'
     integrator = integrate_spmfdm.IntegrateSPM(p, cfg)
@@ -126,7 +114,7 @@ def train(cfg, device):
     for i in range(2):  # each for anode and cathode
         max_value = max_values[i]
         min_value = min_values[i]
-        nn_model = custom_lstm.CustomLSTM(cfg, fc_layers, input_size, max_value, min_value)
+        nn_model = custom_lstm.CustomLSTM(cfg, fc_layers, p.input_size, max_value, min_value)
         nn_models.append(nn_model)
         optimizer = optim.Adam(nn_model.parameters(), lr=cfg['lrate'])
         optimizers.append(optimizer)
@@ -147,15 +135,15 @@ def train(cfg, device):
         loss_epoch = 0
         for data in train_data_length:
             # selecting data for one current profile
-            end_seq = start_seq + data - 2 * k + 1
+            end_seq = start_seq + data - 2 * cfg['k'] + 1
             end = start + data
             u_data = u_train[start_seq:end_seq, :, :]
-            i_data = i_train_seq[start_seq:end_seq, k-1]
-            vt_sim_data = vt_sim_train_seq[start_seq:end_seq, k-1]
+            i_data = i_train_seq[start_seq:end_seq, cfg['k']-1]
+            vt_sim_data = vt_sim_train_seq[start_seq:end_seq, cfg['k']-1]
             len_data = u_data.shape[0]
             len_batch = int(len_data / cfg['batches'])
             x_data_true = cx_train.iloc[start:end, :]
-            x_data_true = x_data_true.iloc[k-1:-k,:]  # select data in the time steps to be predicted from rnn
+            x_data_true = x_data_true.iloc[cfg['k']-1:-cfg['k'],:]  # select data in the time steps to be predicted from rnn
             x_data_true = torch.tensor(x_data_true.values).float()
 
             # tensors to store predictions for the current profile over batch iteration
@@ -226,12 +214,12 @@ def train(cfg, device):
                 print(f'Finished epoch {epoch}, training loss {loss_data}')
 
             if epoch % 5000 == 1 or epoch == cfg['epochs'] - 1:
-                css_n_sim = css_n_sim_train_seq[start_seq:end_seq, k-1]
-                cs_ave_n_sim = cs_ave_n_sim_train_seq[start_seq:end_seq, k-1]
-                css_p_sim = css_p_sim_train_seq[start_seq:end_seq, k-1]
-                cs_ave_p_sim = cs_ave_p_sim_train_seq[start_seq:end_seq, k-1]
-                vt_sim = vt_sim_train_seq[start_seq:end_seq, k-1].detach().cpu().numpy()
-                t_data = t_train_seq[start_seq:end_seq, k-1]
+                css_n_sim = css_n_sim_train_seq[start_seq:end_seq, cfg['k']-1]
+                cs_ave_n_sim = cs_ave_n_sim_train_seq[start_seq:end_seq, cfg['k']-1]
+                css_p_sim = css_p_sim_train_seq[start_seq:end_seq, cfg['k']-1]
+                cs_ave_p_sim = cs_ave_p_sim_train_seq[start_seq:end_seq, cfg['k']-1]
+                vt_sim = vt_sim_train_seq[start_seq:end_seq, cfg['k']-1].detach().cpu().numpy()
+                t_data = t_train_seq[start_seq:end_seq, cfg['k']-1]
 
                 _, ax = plt.subplots(2, 4, figsize=((end_seq-start_seq)/150, 12))
                 hf.set_fig2(ax, 0, 0, t_data, css_n_data.detach().cpu().numpy(), css_n_sim, 'Css_n')
@@ -242,7 +230,7 @@ def train(cfg, device):
                 hf.set_fig(ax, 0, 3, losses[:epoch], 'epoch', 'loss')
                 ax[1, 3].set_yscale("log")
                 plt.suptitle(f"Estimated Initial conditions for training data, lr= {cfg['lrate']} at epoch {epoch} "
-                             f"(N_r = {cfg['n_r']}, k = {k}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']}, "
+                             f"(N_r = {cfg['n_r']}, k = {cfg['k']}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']}, "
                              f"noise = {cfg['noise']}, step size = {cfg['h']})")
                 plt.show()
                 if cfg['save']:
@@ -270,7 +258,7 @@ def train(cfg, device):
             state_end = (i + 1) * (cfg['n_r'] - 1)
             start_seq = 0
             for data in train_data_length:
-                end_seq = start_seq + data - 2 * k + 1
+                end_seq = start_seq + data - 2 * cfg['k'] + 1
                 batch_start = start_seq
                 batch_end = start_seq
                 while batch_end < end_seq:
@@ -281,7 +269,7 @@ def train(cfg, device):
                 start_seq = end_seq
             start_seq = 0
             for data in val_data_length:
-                end_seq = start_seq + data - 2 * k + 1
+                end_seq = start_seq + data - 2 * cfg['k'] + 1
                 batch_start = start_seq
                 batch_end = start_seq
                 while batch_end < end_seq:
@@ -290,24 +278,24 @@ def train(cfg, device):
                     x_val[batch_start:batch_end, state_start:state_end] = nn_models[i](u_val[batch_start:batch_end])
                     batch_start = batch_end
                 start_seq = end_seq
-        i_val = i_val_seq[:, k-1]
+        i_val = i_val_seq[:, cfg['k']-1]
         cs_n_val, cs_p_val = integrator.calc_css_and_cs0(x_val, i_val)
         css_n_val = cs_n_val[:, -1]
         css_p_val = cs_p_val[:, -1]
         cs_bar_n_val = integrator.spm_model.calc_cs_bar(cs_n_val)  # average concentration
         cs_bar_p_val = integrator.spm_model.calc_cs_bar(cs_p_val)  # average concentration
         vt_val = integrator.spm_model.calc_voltage(css_n_val, css_p_val, p.c_e, i_val, p.k_n, p.k_p, p.R_f_n)
-        t_val = t_val_seq[:, k-1]
+        t_val = t_val_seq[:, cfg['k']-1]
 
         _, ax = plt.subplots(2, 3, figsize=(18, 12))
-        hf.set_fig2(ax, 0, 0, t_val, css_n_sim_val_seq[:, k - 1], css_n_val.detach().cpu().numpy(),  'Css_n')
-        hf.set_fig2(ax, 1, 0, t_val, cs_ave_n_sim_val_seq[:, k - 1], cs_bar_n_val.detach().cpu().numpy(),  'Cs_ave_n')
-        hf.set_fig2(ax, 0, 1, t_val, css_p_sim_val_seq[:, k - 1], css_p_val.detach().cpu().numpy(), 'Css_p')
-        hf.set_fig2(ax, 1, 1, t_val, cs_ave_p_sim_val_seq[:, k - 1], cs_bar_p_val.detach().cpu().numpy(), 'Cs_ave_p')
-        hf.set_fig2(ax, 0, 2, t_val, vt_sim_val_seq[:, k - 1], vt_val.detach().cpu().numpy(), 'Voltage')
+        hf.set_fig2(ax, 0, 0, t_val, css_n_sim_val_seq[:, cfg['k'] - 1], css_n_val.detach().cpu().numpy(),  'Css_n')
+        hf.set_fig2(ax, 1, 0, t_val, cs_ave_n_sim_val_seq[:, cfg['k'] - 1], cs_bar_n_val.detach().cpu().numpy(),  'Cs_ave_n')
+        hf.set_fig2(ax, 0, 1, t_val, css_p_sim_val_seq[:, cfg['k'] - 1], css_p_val.detach().cpu().numpy(), 'Css_p')
+        hf.set_fig2(ax, 1, 1, t_val, cs_ave_p_sim_val_seq[:, cfg['k'] - 1], cs_bar_p_val.detach().cpu().numpy(), 'Cs_ave_p')
+        hf.set_fig2(ax, 0, 2, t_val, vt_sim_val_seq[:, cfg['k'] - 1], vt_val.detach().cpu().numpy(), 'Voltage')
         hf.set_fig(ax, 1, 2, losses, 'epoch', 'loss')
         plt.suptitle(f"Estimated Initial conditions for validation data"
-                     f"(N_r = {cfg['n_r']}, k = {k}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']})")
+                     f"(N_r = {cfg['n_r']}, k = {cfg['k']}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']})")
         plt.show()
 
 

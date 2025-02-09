@@ -13,18 +13,8 @@ import helper_func as hf
 import wandb
 
 
-def train(cfg, device):
-    torch.set_default_dtype(torch.float)  # Set default dtype to float32
-    torch.manual_seed(cfg['seed'])  # PyTorch random number generator
-    np.random.seed(cfg['seed'])  # Random number generators in other libraries
-
-    'Setting'
-    input_size = 2  # number of input for LSTM. [I, Vt]
-    output_size = cfg['n_r'] - 1  # number of outputs per NN, i.e., [cs(r=1), ..., cs(r=Nr-1)] for anode or cathode
+def train(cfg, device, p):
     l = int(cfg['k'] / cfg['h'])  # time duration to be integrated (k) divided by step size (h) = number of integration
-
-    'Set battery parameters and loss weights'
-    p = ip.InitParams(cfg)
 
     'Import data (concatenated) and the list of data length'
     train_data, train_data_length = hf.load_data_spmfdm(cfg['train_data_type'], cell=cfg['cell_target'])
@@ -83,8 +73,8 @@ def train(cfg, device):
     val_data_size = sum(val_data_length) - (2 * cfg['k'] - 1) * len(val_data_length)
 
     'Use first half (= k time steps) of sequential data for inputs for LSTM layer (to predict initial states)'
-    u_train = torch.zeros((train_data_size, cfg['k'], input_size))  # (data_size, sequence, input_size([i, v]))
-    u_val = torch.zeros((val_data_size, cfg['k'], input_size))  # (data_size, sequence, input_size([i, v]))
+    u_train = torch.zeros((train_data_size, cfg['k'], p.input_size))  # (data_size, sequence, input_size([i, v]))
+    u_val = torch.zeros((val_data_size, cfg['k'], p.input_size))  # (data_size, sequence, input_size([i, v]))
     u_train[:, :, 0] = i_train_seq[:, :cfg['k']]
     u_train[:, :, 1] = vt_sim_train_seq[:, :cfg['k']]
     u_val[:, :, 0] = i_val_seq[:, :cfg['k']]
@@ -136,7 +126,7 @@ def train(cfg, device):
     fc_layers = np.array(cfg['hidden_lstm'])  # take output of LSTM layer as input for FC layer
     for layer in range(cfg['layer_fc']):
         fc_layers = np.append(fc_layers, cfg['hidden_fc'])
-    fc_layers = np.append(fc_layers, output_size)  # output = [xn_1(t+k) ... xn_Q(t+k), xp_1(t+k) ... xp_Q(t+k)]
+    fc_layers = np.append(fc_layers, p.output_size)  # output = [xn_1(t+k) ... xn_Q(t+k), xp_1(t+k) ... xp_Q(t+k)]
 
     'Creating models'
     integrator = integrate_spmfdm.IntegrateSPM(p, cfg)
@@ -148,7 +138,7 @@ def train(cfg, device):
     for i in range(2):  # each for anode and cathode
         max_value = max_values[i]
         min_value = min_values[i]
-        nn_model = custom_lstm.CustomLSTM(cfg, fc_layers, input_size, max_value, min_value)
+        nn_model = custom_lstm.CustomLSTM(cfg, fc_layers, p.input_size, max_value, min_value)
         nn_models.append(nn_model)
         optimizer = optim.Adam(nn_model.parameters(), lr=cfg['lrate'])
         optimizers.append(optimizer)

@@ -1,11 +1,12 @@
 import torch
 import train_pinn
 import train_nn
+import numpy as np
 
 import sys
 import argparse
 import yaml
-
+import init_params as ip
 
 def parse_yaml_from_args():
     parser = argparse.ArgumentParser(description="Parse a YAML file from the command line.")
@@ -37,7 +38,17 @@ if __name__ == '__main__':
         device = torch.device("cpu")
         print('No GPU available')
 
+    torch.set_default_dtype(torch.float)  # Set default dtype to float32
+    torch.manual_seed(cfg['seed'])  # PyTorch random number generator
+    np.random.seed(cfg['seed'])  # Random number generators in other libraries
+
+    'Set battery parameters and loss weights'
+    p = ip.InitParams(cfg)
+    p.input_size = 2  # number of input for LSTM. [I, Vt]
+    p.output_size = cfg['n_r'] - 1  # number of outputs per NN, i.e., [cs(r=1), ..., cs(r=Nr-1)] for anode or cathode
+
+
     if cfg['method'] == 'pinn':
-        train_pinn.train(cfg, device)
+        train_pinn.train(cfg, device, p)
     else:
-        train_nn.train(cfg, device)
+        train_nn.train(cfg, device, p)
