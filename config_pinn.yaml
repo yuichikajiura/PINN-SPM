@@ -1,8 +1,8 @@
 method: pinn # pinn or nn
 
 # Load/Save
-load_nn: False  # Load pre-trained NN or not
-suffix_nn: ''  # Suffix of filename for pre-trained NN
+load_nn: True  # Load pre-trained NN or not
+suffix_nn: 'cell1_data1234'  # Suffix of filename for pre-trained NN
 load_pinn: False  # Load pre-trained PINN or not
 suffix_pinn: ''  # Suffix of filename for pre-trained PINN
 save: False  # Save PINN after training or not
