@@ -9,7 +9,7 @@ The network consists of neural networks (NNs) and a battery model. For the NNs, 
 - Single Particle Model(SPM) is used for the battery model
 - Six model parameters (e.g. diffusion coefficient at anode) can be set to be identified
 - Two cell models (fresh and aged) included
-- Five cycling datasets are prepared using [SPMeT code](https://github.com/scott-moura/SPMeT) from Prof. Scott Moura (with electrolyte and thermal dynamics disabled)
+- Five cycling datasets are prepared using [SPMe code](https://github.com/scott-moura/SPMeT) from Prof. Scott Moura (with electrolyte dynamics disabled)
 
 ### Usage
 To train the model, run:
