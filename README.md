@@ -18,6 +18,6 @@ To train the model, run:
 
 python main.py config_pinn.yaml
 
-To change the configuration, edit config_pinn.yaml.
+To change the configuration (e.g. parameters to be identified), edit config_pinn.yaml.
 
 
