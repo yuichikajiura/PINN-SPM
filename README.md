@@ -16,12 +16,14 @@ Single particle model (SPM) discretized by finite difference method is used as t
 
 ### Usage
 To train the model, run:
-
+```console
 python main.py config_pinn.yaml
+```
 
 To change the configuration (e.g. parameters to be identified, datasets to be used), edit config_pinn.yaml.
 
 If you want to change network architecture (e.g., the size of the hidden layer of the LSTM), you will first need to edit config_nn.yaml and redo NN pre-training by running:
-
+```console
 python main.py config_nn.yaml
+```
 
