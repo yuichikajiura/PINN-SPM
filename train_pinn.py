@@ -5,7 +5,6 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import init_params as ip
 import integrate_spmfdm
 import custom_lstm
 import helper_func as hf
