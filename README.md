@@ -7,9 +7,11 @@ The network consists of neural networks (NNs) and a battery model. For the NNs, 
 
 ### Features
 - Single Particle Model(SPM) is used for the battery model
-- Six model parameters (e.g. diffusion coefficient at anode) can be set to be identified
+- Six model parameters (e.g. diffusion coefficient at the anode) can be set to be identified (over the NNs training)
+- After the NNs are trained, they can be used as rapid state estimators
 - Two cell models (fresh and aged) included
 - Five cycling datasets are prepared using [SPMe code](https://github.com/scott-moura/SPMeT) from Prof. Scott Moura (with electrolyte dynamics disabled)
+- Transfer learning concept implemented: before training PINN for the cell with unknown parameters (e.g. the degraded cell), pre-train NN with the cell with known parameters (e.g. the fresh cell). It allows faster and stabler PINN training. 
 
 ### Usage
 To train the model, run:
