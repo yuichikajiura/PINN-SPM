@@ -10,7 +10,7 @@
 - Two cell models (fresh and aged) included
 - Five cycling datasets are prepared using [SPMeT code](https://github.com/scott-moura/SPMeT) from Prof. Scott Moura (with electrolyte and thermal dynamics disabled)
 
-
+### Usage
 To train the model, run:
 
 python main.py config_pinn.yaml
