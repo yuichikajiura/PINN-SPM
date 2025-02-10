@@ -1,5 +1,3 @@
-# PINN-SPM
-
 ## Physics-Informed Neural Networks (PINNs) for single particle battery model (SPM) parameter identification and state estimation 
 
 ### Method
