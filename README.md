@@ -12,7 +12,7 @@ Single particle model (SPM) discretized by finite difference method is used as t
 - After the NN is trained, it can be used as a rapid state estimator
 - Two cell models (fresh and aged) included, of which parameters based on [this](https://github.com/scott-moura/SPMeT/blob/master/param/params_LCO.m)
 - Five cycling datasets are prepared by simulating SPM as coded [here](https://github.com/scott-moura/SPMeT/blob/master/spme.m) (with electrolyte dynamics disabled and some modifications)
-- Transfer learning concept implemented: before training PINN for the cell with unknown parameters (e.g. the degraded cell), NN is pre-trained with the simulated dataset (that includes internal states) of the cell with known parameters (e.g. the fresh cell). It allows faster and stabler PINN training.
+- Transfer learning concept implemented: before training PINN for the cell with unknown parameters (e.g. the degraded cell), NN is pre-trained with the cell with known parameters (e.g. the fresh cell). It allows faster and stabler PINN training.
 
 ### Usage
 To train the model, run:
