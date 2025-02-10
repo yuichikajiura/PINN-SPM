@@ -1,1 +1,2 @@
-# Physics Informed Neural Network (PINN) for Battery parameter identification and state estimation
+# PINN-SPM
+Physics-Informed Neural Network for battery parameter identification and state estimation. 
