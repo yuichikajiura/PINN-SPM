@@ -3,7 +3,7 @@
 ## Physics-Informed Neural Networks (PINNs) for single particle battery model (SPM) parameter identification and state estimation. 
 
 ### Method
-The network consists of neural networks (NNs) and a battery model. For the NNs, recurrent neural networks, namely long short-term memory (LSTM) networks, are used. The LSTM inputs historical battery operational data (current and voltage) and outputs the battery's internal states, i.e. lithium-ion concentration at each electrode. The battery model takes the outputs and calculates other battery variables, such as voltage. Over the training, the networks and battery model parameters are optimized such that predicted internal states and voltage outputs align with the physical law of the battery model and the observed voltage. For the methodology in detail, please refer to [this publication](https://ieeexplore.ieee.org/document/10644822).
+The network consists of neural networks (NNs) and a battery model. For the NNs, recurrent neural networks, namely long short-term memory (LSTM) networks, are used. The LSTM inputs historical battery operational data (current and voltage) and outputs the battery's internal states, i.e. lithium-ion concentration at each electrode. The battery model takes the outputs and calculates other battery variables, such as voltage. Over the training, the networks and battery model parameters are optimized such that predicted internal states and voltage outputs align with the physical law of the battery model and the observed voltage. For the methodology in detail, please refer to [this publication](https://ieeexplore.ieee.org/document/10644822)(a simpler NN and battery model are used in the paper).
 
 ### Features
 - Single Particle Model(SPM) is used for the battery model
