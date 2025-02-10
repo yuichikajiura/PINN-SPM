@@ -2,6 +2,9 @@
 
 ## Physics-Informed Neural Network(PINN) for battery model parameter identification and state estimation. 
 
+### Summary
+
+### Features
 - Single Particle Model(SPM) is used for the battery model
 - Six model parameters (e.g. diffusion coefficient at anode) can be set to be identified
 - Two cell models (fresh and aged) included
