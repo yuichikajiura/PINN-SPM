@@ -13,6 +13,15 @@ import wandb
 
 
 def train(cfg, device, p):
+
+    wandb.init(
+        project="PINN",
+        config={
+            "learning_rate": cfg["lrate"],
+            "epochs": cfg["epochs"],
+        }
+    )
+
     l = int(cfg['k'] / cfg['h'])  # time duration to be integrated (k) divided by step size (h) = number of integration
 
     'Import data (concatenated) and the list of data length'
@@ -181,10 +190,14 @@ def train(cfg, device, p):
     print('Start training')
     for epoch in range(last_epoch + 1, cfg['epochs']):
         start = 0
-        loss_epoch = 0
-        for data in train_data_length:
+        loss_vt = 0
+        loss_nLi = 0
+        loss_integ = 0
+
+        for data_id in range(len(train_data_length)):
             # selecting data for one current profile
-            end = start + data - 2 * cfg['k'] + 1
+            data_length = train_data_length[data_id]
+            end = start + data_length - 2 * cfg['k'] + 1
             u_data = u_train[start:end, :, :]
             i_seq_data = i_train_seq_sampled[start:end, :]
             i_seq_ave_data = i_train_seq_sf_ave[start:end, :]
@@ -277,6 +290,7 @@ def train(cfg, device, p):
                 loss_vt_data += loss_vt.item()
                 loss_nLi_data += loss_nLi.item()
                 loss_integ_data += loss_integ
+
                 css_n_data[batch_start:batch_end] = css_n_seq_batch[:, 0]
                 css_p_data[batch_start:batch_end] = css_p_seq_batch[:, 0]
                 cs_bar_n_data[batch_start:batch_end] = cs_bar_n_seq_batch[:, 0]
@@ -286,11 +300,12 @@ def train(cfg, device, p):
             loss_vt_data = loss_vt_data / cfg['batches']
             loss_nLi_data = loss_nLi_data / cfg['batches']
             loss_integ_data = loss_integ_data / cfg['batches']
-            loss_data = loss_vt_data + loss_nLi_data + loss_integ_data
+            loss_vt += loss_vt_data
+            loss_nLi += loss_vt_data
+            loss_integ += loss_integ_data
 
-            if epoch % 25 == 0:
-                print(f'Finished epoch {epoch}, training loss {loss_data} (from vt: {loss_vt_data}, '
-                      f'from nLi: {loss_nLi_data}, from integ: {loss_integ_data})\n'
+            if epoch % 100 == 0:
+                print(f'Epoch {epoch}, loss from vt: {loss_vt_data}, nLi: {loss_nLi_data}, integ: {loss_integ_data})\n'
                       f'param error: nLi {np.round(100 * (integrator.p.nLi_s.detach().cpu().numpy() / p.nLi_s_true - 1))[0]}%, '
                       f'R_f_n {np.round(100 * (integrator.p.R_f_n.detach().cpu().numpy() / p.R_f_n_true - 1))[0]}%, '
                       f'k_n {np.round(100 * (integrator.p.k_n.detach().cpu().numpy() / p.k_n_true - 1))[0]}%, '
@@ -298,16 +313,15 @@ def train(cfg, device, p):
                       f'D_s_n {np.round(100 * (integrator.p.D_s_n.detach().cpu().numpy() / p.D_s_n_true - 1))[0]}%, '
                       f'D_s_p {np.round(100 * (integrator.p.D_s_p.detach().cpu().numpy() / p.D_s_p_true - 1))[0]}% \n')
 
-            if epoch % 1000 == 1 or epoch == cfg['epochs'] - 1:
+            if epoch % 2500 == 1 or epoch == cfg['epochs'] - 1:
                 css_n_sim = css_n_sim_train_seq[start:end, cfg['k'] - 1]
                 cs_ave_n_sim = cs_ave_n_sim_train_seq[start:end, cfg['k'] - 1]
                 css_p_sim = css_p_sim_train_seq[start:end, cfg['k'] - 1]
                 cs_ave_p_sim = cs_ave_p_sim_train_seq[start:end, cfg['k'] - 1]
                 vt_sim = vt_sim_train_seq[start:end, cfg['k'] - 1].detach().cpu().numpy()
                 t_data = t_train_seq[start:end, cfg['k'] - 1]
-                nLi_est = (integrator.p.nLi_s * torch.ones(t_data.shape)).detach().cpu().numpy()
 
-                _, ax = plt.subplots(3, 4, figsize=((end - start) / 150, 12))
+                _, ax = plt.subplots(2, 3, figsize=((end - start) / 150, 12))
                 hf.set_fig2(ax, 0, 0, t_data, css_n_data.detach().cpu().numpy(), css_n_sim, 'Css_n')
                 hf.set_fig2(ax, 1, 0, t_data, cs_bar_n_data.detach().cpu().numpy(), cs_ave_n_sim, 'Cs_ave_n')
                 hf.set_fig2(ax, 0, 1, t_data, css_p_data.detach().cpu().numpy(), css_p_sim, 'Css_p')
@@ -315,16 +329,19 @@ def train(cfg, device, p):
                 hf.set_fig2(ax, 0, 2, t_data, vt_data.detach().cpu().numpy(), vt_sim, 'Voltage')
                 hf.set_fig(ax, 1, 2, losses[:epoch], 'epoch', 'loss', bottom=0.02, top=0.2)
                 ax[1, 2].set_yscale("log")
-                hf.set_fig(ax, 0, 3, nLi_hist[:epoch], 'epoch', 'nLi', p.nLi_s_true * np.ones(losses[:epoch].size))
-                hf.set_fig(ax, 1, 3, R_f_n_hist[:epoch], 'epoch', 'R_f_n', p.R_f_n_true * np.ones(losses[:epoch].size))
-                hf.set_fig(ax, 2, 0, k_n_hist[:epoch], 'epoch', 'k_n', p.k_n_true * np.ones(losses[:epoch].size))
-                hf.set_fig(ax, 2, 1, k_p_hist[:epoch], 'epoch', 'k_p', p.k_p_true * np.ones(losses[:epoch].size))
-                hf.set_fig(ax, 2, 2, D_s_n_hist[:epoch], 'epoch', 'D_s_n', p.D_s_n_true * np.ones(losses[:epoch].size))
-                hf.set_fig(ax, 2, 3, D_s_p_hist[:epoch], 'epoch', 'D_s_p', p.D_s_p_true * np.ones(losses[:epoch].size))
+                # hf.set_fig(ax, 0, 3, nLi_hist[:epoch], 'epoch', 'nLi', p.nLi_s_true * np.ones(losses[:epoch].size))
+                # hf.set_fig(ax, 1, 3, R_f_n_hist[:epoch], 'epoch', 'R_f_n', p.R_f_n_true * np.ones(losses[:epoch].size))
+                # hf.set_fig(ax, 2, 0, k_n_hist[:epoch], 'epoch', 'k_n', p.k_n_true * np.ones(losses[:epoch].size))
+                # hf.set_fig(ax, 2, 1, k_p_hist[:epoch], 'epoch', 'k_p', p.k_p_true * np.ones(losses[:epoch].size))
+                # hf.set_fig(ax, 2, 2, D_s_n_hist[:epoch], 'epoch', 'D_s_n', p.D_s_n_true * np.ones(losses[:epoch].size))
+                # hf.set_fig(ax, 2, 3, D_s_p_hist[:epoch], 'epoch', 'D_s_p', p.D_s_p_true * np.ones(losses[:epoch].size))
                 plt.suptitle(f"Estimated Initial conditions for training data, lr= {cfg['lrate']} at epoch {epoch} "
                              f"(N_r = {cfg['n_r']}, k = {cfg['k']}, LSTM size = {cfg['hidden_lstm']}, FC size = {cfg['hidden_fc']}, "
                              f"noise = {cfg['noise']}, step size = {cfg['h']})")
-                plt.show()
+                # plt.show()
+
+                fig_name = "pinn_result_train_epoch" + str(epoch) + "_data" + str(data_id)
+                wandb.log({fig_name: plt}, commit=False)
                 if cfg['save']:
                     torch.save(nn_models[0].state_dict(),
                                'training_results/pilstm_spmfdm_n_' + cfg['suffix_save'] + '.pth')
@@ -336,9 +353,12 @@ def train(cfg, device, p):
                     df.to_csv('training_results/pilstm_spmfdm_loss_' + cfg['suffix_save'] + '.csv', index=False)
 
             start = end
-            loss_epoch += loss_data
 
-        losses[epoch] = loss_epoch
+        loss_vt = loss_vt/len(train_data_length)
+        loss_nLi = loss_nLi/len(train_data_length)
+        loss_integ = loss_integ/len(train_data_length)
+        loss = loss_vt + loss_nLi + loss_integ
+        losses[epoch] = loss
         nLi_hist[epoch] = integrator.p.nLi_s
         R_f_n_hist[epoch] = integrator.p.R_f_n
         k_n_hist[epoch] = integrator.p.k_n
@@ -346,8 +366,18 @@ def train(cfg, device, p):
         D_s_n_hist[epoch] = integrator.p.D_s_n
         D_s_p_hist[epoch] = integrator.p.D_s_p
 
-        if epoch % 1000 == 1 or epoch == cfg['epochs'] - 1:
-            max_batch_size = 2000
+        wandb.log({"loss": loss, "loss_vt": loss_vt, "loss_nLi": loss_nLi, "loss_integ": loss_integ,
+                   "nLi_scaled": integrator.nLi_s_scaled, "Rfn_scaled": integrator.R_f_n_scaled,
+                   "Dsn_scaled": integrator.D_s_n_scaled, "Dsp_scaled": integrator.D_s_p_scaled,
+                   "kn_scaled": integrator.k_p_scaled, "kp_scaled": integrator.k_p_scaled}, commit=False)
+
+        if epoch > cfg['decay_step']:
+            for optimizer in optimizers:
+                for g in optimizer.param_groups:
+                    g['lr'] = g['lr'] * cfg['decay_rate']
+
+        if epoch % 2500 == 1 or epoch == cfg['epochs'] - 1:
+            max_batch_size = 5000
             with torch.no_grad():
                 x_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2)
                 x_seq_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2, l + 1)
@@ -420,7 +450,11 @@ def train(cfg, device, p):
                        bottom=0.01, top=1)
             ax[2, 1].set_yscale("log")
             plt.suptitle(f"Estimated Initial conditions for validation data, lr= {cfg['lrate']}")
-            plt.show()
+            # plt.show()
+            fig_name = "pinn_result_val_epoch" + str(epoch)
+            wandb.log({fig_name: plt}, commit=False)
+
+        wandb.log({}, commit=True)
 
     elapsed = time.time() - start_time
     print('Training time: %.2f' % elapsed)

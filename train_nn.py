@@ -245,6 +245,11 @@ def train(cfg, device, p):
 
         losses[epoch] = loss_epoch
 
+        if epoch > cfg['decay_step']:
+            for optimizer in optimizers:
+                for g in optimizer.param_groups:
+                    g['lr'] = g['lr'] * cfg['decay_rate']
+
     elapsed = time.time() - start_time
     print('Training time: %.2f' % elapsed)
 

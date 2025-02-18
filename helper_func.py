@@ -41,110 +41,23 @@ def set_scatter(ax, row, col, x, y, xlabel, ylabel, with_line=True):
                           [np.mean((x.min(), y.min())), np.mean((x.max(), y.max()))], color='red')
 
 
-def load_data(data_type):
-    df = pd.DataFrame()
-    length = []
-    for j in data_type:
-        if j == 0:
-            data = pd.read_csv("data/ECM_simulation_OCV_ocv7.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'SoC', 'Vc'])
-        elif j == 1:
-            data = pd.read_csv("data/ECM_simulation_FUDS_ocv7.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'SoC', 'Vc'])
-        elif j == 2:
-            data = pd.read_csv("data/ECM_simulation_2CDist_ocv7.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'SoC', 'Vc'])
-        elif j == 3:
-            data = pd.read_csv("data/ECM_simulation_US06_ocv7.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'SoC', 'Vc'])
-        elif j == 4:
-            data = pd.read_csv("data/ECM_simulation_DST_ocv7.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'SoC', 'Vc'])
-        elif j == 5:
-            data = pd.read_csv("data/ECM_simulation_BJDST_ocv7.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'SoC', 'Vc'])
-        else:
-            data = pd.read_csv("data/SPM_Pade3rd_simulation_UDDSx2.csv",
-                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                      'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
-        df = pd.concat([df, data], ignore_index=True)
-        length.append(len(data))
-    return df, length
-
-
-def load_data_pade(data_type, pade_order):
-    df = pd.DataFrame()
-    length = []
-    print()
-    for j in data_type:
-        if j == 1:
-            if pade_order == 2:
-                data = pd.read_csv("data/SPM_Pade2nd_simulation_UDDS.csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p',
-                                          'Xn_1', 'Xn_2', 'Xp_1', 'Xp_2'])
-            elif pade_order == 3:
-                data = pd.read_csv("data/SPM_Pade3rd_simulation_UDDS.csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p',
-                                          'Xn_1', 'Xn_2', 'Xn_3', 'Xp_1', 'Xp_2', 'Xp_3'])
-            elif pade_order == 4:
-                data = pd.read_csv("data/SPM_Pade4th_simulation_UDDS.csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p',
-                                          'Xn_1', 'Xn_2', 'Xn_3', 'Xn_4', 'Xp_1', 'Xp_2', 'Xp_3', 'Xp_4'])
-            else:
-                raise Exception("Pade order must be 2, 3, or 4")
-        else:
-            raise Exception("Data type must be 1")
-        df = pd.concat([df, data], ignore_index=True)
-        length.append(len(data))
-    return df, length
-
-
 def load_data_spmfdm(data_type, states=False, cell=1):
     df = pd.DataFrame()
     length = []
     if states:
         for j in data_type:
-            if j == 1:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_UDDS_cell"+str(cell)+".csv", header=None)
-            elif j == 2:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_FUDS_cell"+str(cell)+".csv", header=None)
-            elif j == 3:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_Charge2_cell" + str(cell) + ".csv", header=None)
-            elif j == 4:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_Charge_cell"+str(cell)+".csv", header=None)
-            elif j == 5:
-                data = pd.read_csv("data/SPM_FDM_nr20_simulation_US06_Extended_cell"+str(cell)+".csv", header=None)
-            else:
-                raise Exception("Data type must be within 1-4")
+            if j not in ["UDDS", "FUDS", "BJDST", "Charge", "Charge2", "US06_Extended"]:
+                raise Exception("Data type not exist")
+            data = pd.read_csv("data/SPM_FDM_nr20_simulation_"+ j +"_cell" + str(cell) + ".csv", header=None)
             df = pd.concat([df, data], ignore_index=True)
             length.append(len(data))
     else:
         for j in data_type:
-            if j == 1:
-                data = pd.read_csv("data/SPM_FDM_nr100_simulation_UDDS_cell"+str(cell)+".csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
-            elif j == 2:
-                data = pd.read_csv("data/SPM_FDM_nr100_simulation_FUDS_cell"+str(cell)+".csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
-            elif j == 3:
-                data = pd.read_csv("data/SPM_FDM_nr100_simulation_US06_Extended_cell"+str(cell)+".csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
-            elif j == 4:
-                data = pd.read_csv("data/SPM_FDM_nr100_simulation_Charge_cell"+str(cell)+".csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
-            elif j == 5:
-                data = pd.read_csv("data/SPM_FDM_nr100_simulation_Charge2_cell" + str(cell) + ".csv",
-                                   names=['Test_Time(s)', 'Current(A)', 'Voltage(V)',
-                                          'Css_n', 'Cs_ave_n', 'Css_p', 'Cs_ave_p'])
-            else:
-                raise Exception("Data type must be within 1-4")
+            if j not in ["UDDS", "FUDS", "BJDST", "Charge", "Charge2", "US06_Extended"]:
+                raise Exception("Data type not exist")
+            data = pd.read_csv("data/SPM_FDM_nr20_simulation_" + j + "_cell" + str(cell) + ".csv",
+                               names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'Css_n', 'Cs_ave_n', 'Css_p',
+                                      'Cs_ave_p'])
             df = pd.concat([df, data], ignore_index=True)
             length.append(len(data))
     return df, length

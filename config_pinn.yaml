@@ -15,7 +15,9 @@ layer_fc: 1  # Number of FC layer
 hidden_lstm: 64  # Number of hidden nodes in LSTM layer
 hidden_fc: 600  # Number of hidden nodes in FC layer
 epochs: 100000  # Number of training epochs
-lrate: 0.0003  # Learning rate
+lrate: 0.001  # Learning rate
+decay_step: 5000 # The number of steps after which the learning rate will decay
+decay_rate: 0.9999 # The rate learning rate decays per epoch
 activation: tanh  # Activation function (tanh or relu)
 seed: 1234  # Seed for random number generator in torch and numpy
 k: 100   # number of data points in inputs [i[t]...i[t+k], vt[t]...vt[t+k]] to predict initial cond z[t] and vc[t]
@@ -23,13 +25,14 @@ h: 1   # Step size for integration (an integer 1 or greater, need to be a common
 integ_type: 1   # 0 for RK4 (default), 1 for Naive
 
 # Data
-train_data_type:  # 1:UDDS, 2:FUDS, 3:CC, 4:CC2,  5:US06(Extended)
-  - 1
-  - 2
-  - 3
-  - 4
-val_data_type:  # 1:UDDS, 2:FUDS, 3:CC, 4:CC2,  5:US06(Extended)
-  - 5
+train_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2,  US06_Extended
+  - "UDDS"
+  - "FUDS"
+  - "BJDST"
+  - "Charge"
+  - "Charge2"
+val_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2, US06_Extended
+  - "US06_Extended"
 std_current: 38  # standard deviation of current data in Ampere (UDDS)
 std_voltage: 0.16   # standard deviation of voltage data in Volt (UDDS)
 noise: 0.03   # the magnitude of white noise to standard deviation of data
