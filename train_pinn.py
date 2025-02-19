@@ -155,17 +155,17 @@ def train(cfg, device, p):
     optimizers.append(optimizer)
     if cfg['load_nn']:
         nn_models[0].load_state_dict(
-            torch.load('training_results/lstm_spmfdm_n_' + cfg['suffix_nn'] + '.pth', map_location=torch.device('cpu')))
+            torch.load('results/lstm_spmfdm_n_' + cfg['suffix_nn'] + '.pth', map_location=torch.device('cpu')))
         nn_models[1].load_state_dict(
-            torch.load('training_results/lstm_spmfdm_p_' + cfg['suffix_nn'] + '.pth', map_location=torch.device('cpu')))
+            torch.load('results/lstm_spmfdm_p_' + cfg['suffix_nn'] + '.pth', map_location=torch.device('cpu')))
     if cfg['load_pinn']:
         nn_models[0].load_state_dict(
-            torch.load('training_results/pilstm_spmfdm_n_' + cfg['suffix_pinn'] + '.pth',
+            torch.load('results/pilstm_spmfdm_n_' + cfg['suffix_pinn'] + '.pth',
                        map_location=torch.device('cpu')))
         nn_models[1].load_state_dict(
-            torch.load('training_results/pilstm_spmfdm_p_' + cfg['suffix_pinn'] + '.pth',
+            torch.load('results/pilstm_spmfdm_p_' + cfg['suffix_pinn'] + '.pth',
                        map_location=torch.device('cpu')))
-        df = pd.read_csv('training_results/pilstm_spmfdm_loss_' + cfg['suffix_pinn'] + '.csv')
+        df = pd.read_csv('results/pilstm_spmfdm_loss_' + cfg['suffix_pinn'] + '.csv')
         last_epoch = df.nLi[df.nLi != 0].index[-1]
         losses[0:last_epoch + 1] = df.losses[0:last_epoch + 1]
         val_losses[0:last_epoch + 1] = df.val_losses[0:last_epoch + 1]
@@ -344,13 +344,13 @@ def train(cfg, device, p):
                 wandb.log({fig_name: plt}, commit=False)
                 if cfg['save']:
                     torch.save(nn_models[0].state_dict(),
-                               'training_results/pilstm_spmfdm_n_' + cfg['suffix_save'] + '.pth')
+                               'results/pilstm_spmfdm_n_' + cfg['suffix_save'] + '.pth')
                     torch.save(nn_models[1].state_dict(),
-                               'training_results/pilstm_spmfdm_p_' + cfg['suffix_save'] + '.pth')
+                               'results/pilstm_spmfdm_p_' + cfg['suffix_save'] + '.pth')
                     df = pd.DataFrame({"losses": losses, "nLi": nLi_hist, "R_f_n": R_f_n_hist, "k_n": k_n_hist,
                                        "k_p": k_p_hist, "D_s_n": D_s_n_hist, "D_s_p": D_s_p_hist,
                                        "val_losses": val_losses})
-                    df.to_csv('training_results/pilstm_spmfdm_loss_' + cfg['suffix_save'] + '.csv', index=False)
+                    df.to_csv('results/pilstm_spmfdm_loss_' + cfg['suffix_save'] + '.csv', index=False)
 
             start = end
 

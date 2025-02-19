@@ -94,7 +94,7 @@ def train(cfg, device, p):
 
     'Enable when loading saved models'
     if cfg['load']:
-        df = pd.read_csv('training_results/pilstm_spmfdm_' + str(cfg['k']) + 'k_loss_'+cfg['suffix']+'.csv')
+        df = pd.read_csv('results/pilstm_spmfdm_' + str(cfg['k']) + 'k_loss_'+cfg['suffix']+'.csv')
         last_epoch = df.losses[df.losses != 0].index[-1]
         losses[0:last_epoch + 1] = df.losses[0:last_epoch + 1]
 
@@ -120,8 +120,8 @@ def train(cfg, device, p):
         optimizers.append(optimizer)
 
     if cfg['load']:
-        nn_models[0].load_state_dict(torch.load('training_results/pilstm_spmfdm_n_' + cfg['suffix'] + '.pth', map_location=torch.device('cpu')))
-        nn_models[1].load_state_dict(torch.load('training_results/pilstm_spmfdm_p_' + cfg['suffix'] + '.pth', map_location=torch.device('cpu')))
+        nn_models[0].load_state_dict(torch.load('results/pilstm_spmfdm_n_' + cfg['suffix'] + '.pth', map_location=torch.device('cpu')))
+        nn_models[1].load_state_dict(torch.load('results/pilstm_spmfdm_p_' + cfg['suffix'] + '.pth', map_location=torch.device('cpu')))
 
     u_train.requires_grad = True
     start_time = time.time()
@@ -234,10 +234,10 @@ def train(cfg, device, p):
                              f"noise = {cfg['noise']}, step size = {cfg['h']})")
                 plt.show()
                 if cfg['save']:
-                    torch.save(nn_models[0].state_dict(), 'training_results/lstm_spmfdm_n_' + cfg['suffix'] + '.pth')
-                    torch.save(nn_models[1].state_dict(), 'training_results/lstm_spmfdm_p_' + cfg['suffix'] + '.pth')
+                    torch.save(nn_models[0].state_dict(), 'results/lstm_spmfdm_n_' + cfg['suffix'] + '.pth')
+                    torch.save(nn_models[1].state_dict(), 'results/lstm_spmfdm_p_' + cfg['suffix'] + '.pth')
                     df = pd.DataFrame({"losses": losses})
-                    df.to_csv('training_results/lstm_spmfdm_' + cfg['suffix'] + '.csv', index=False)
+                    df.to_csv('results/lstm_spmfdm_' + cfg['suffix'] + '.csv', index=False)
 
             start = end
             start_seq = end_seq
