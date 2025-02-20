@@ -19,25 +19,41 @@ class IntegrateSPM(nn.Module):
         self.D_s_p_init = p.D_s_p
         self.nLi_s_init = p.nLi_s
 
-        self.R_f_n_scaled = torch.tensor([p.R_f_n / self.R_f_n_init], requires_grad=True).float()
-        self.k_n_scaled = torch.tensor([p.k_n / self.k_n_init], requires_grad=True).float()
-        self.k_p_scaled = torch.tensor([p.k_p / self.k_p_init], requires_grad=True).float()
-        self.D_s_n_scaled = torch.tensor([p.D_s_n / self.D_s_n_init], requires_grad=True).float()
-        self.D_s_p_scaled = torch.tensor([p.D_s_p / self.D_s_p_init], requires_grad=True).float()
-        self.nLi_s_scaled = torch.tensor([p.nLi_s / self.nLi_s_init], requires_grad=True).float()
-
         if cfg['p_targets'][0]:
+            self.nLi_s_scaled = torch.tensor([p.nLi_s / self.nLi_s_init], requires_grad=True).float()
             self.nLi_s_scaled = nn.Parameter(self.nLi_s_scaled)
+        else:
+            self.nLi_s_scaled = torch.tensor([p.nLi_s_true / self.nLi_s_init], requires_grad=False).float()
+
         if cfg['p_targets'][1]:
+            self.R_f_n_scaled = torch.tensor([p.R_f_n / self.R_f_n_init], requires_grad=True).float()
             self.R_f_n_scaled = nn.Parameter(self.R_f_n_scaled)
+        else:
+            self.R_f_n_scaled = torch.tensor([p.R_f_n_true / self.R_f_n_init], requires_grad=False).float()
+
         if cfg['p_targets'][2]:
+            self.k_n_scaled = torch.tensor([p.k_n / self.k_n_init], requires_grad=True).float()
             self.k_n_scaled = nn.Parameter(self.k_n_scaled)
+        else:
+            self.k_n_scaled = torch.tensor([p.k_n_true / self.k_n_init], requires_grad=False).float()
+
         if cfg['p_targets'][3]:
+            self.k_p_scaled = torch.tensor([p.k_p / self.k_p_init], requires_grad=True).float()
             self.k_p_scaled = nn.Parameter(self.k_p_scaled)
+        else:
+            self.k_p_scaled = torch.tensor([p.k_p_true / self.k_p_init], requires_grad=False).float()
+
         if cfg['p_targets'][4]:
+            self.D_s_n_scaled = torch.tensor([p.D_s_n / self.D_s_n_init], requires_grad=True).float()
             self.D_s_n_scaled = nn.Parameter(self.D_s_n_scaled)
+        else:
+            self.D_s_n_scaled = torch.tensor([p.D_s_n_true / self.D_s_n_init], requires_grad=False).float()
+
         if cfg['p_targets'][5]:
+            self.D_s_p_scaled = torch.tensor([p.D_s_p / self.D_s_p_init], requires_grad=True).float()
             self.D_s_p_scaled = nn.Parameter(self.D_s_p_scaled)
+        else:
+            self.D_s_p_scaled = torch.tensor([p.D_s_p_true / self.D_s_p_init], requires_grad=False).float()
 
         self.alpha_n = self.alpha(p.D_s_n, p.R_s_n)
         self.alpha_p = self.alpha(p.D_s_p, p.R_s_p)
