@@ -5,7 +5,7 @@
 ### Method
 The network consists of neural networks (NNs) and a battery model. For the NNs, recurrent neural networks, namely long short-term memory (LSTM) networks, are used. The LSTM inputs historical battery operational data (current and voltage) and outputs the battery's internal states, i.e. lithium-ion concentration at each electrode. The battery model takes the outputs and calculates other battery variables, such as voltage. Over the training, the networks and battery model parameters are optimized such that predicted internal states and voltage outputs align with the physical law of the battery model and the observed voltage. For the methodology in detail, refer to [this publication](https://ieeexplore.ieee.org/document/10644822)(Note: a simpler NN and battery model are used in the paper).
 
-Single particle model (SPM) discretized by finite difference method is used as the battery model. For details, refer to [this paper](https://ecal.studentorg.berkeley.edu/pubs/SPMe-Obs-Journal-Final.pdf) from Professor Scott Moura at UC Berkeley, as well as [his repository](https://github.com/scott-moura/SPMeT). (Note: the electrolyte dynamics is neglected/disabled for the moment)
+Single particle model (SPM) discretized by finite difference method is used as the battery model. For details, refer to [this paper](https://ecal.studentorg.berkeley.edu/pubs/SPMe-Obs-Journal-Final.pdf) from Professor Scott Moura at UC Berkeley, as well as [this repository](https://github.com/scott-moura/SPMeT). (Note: the electrolyte dynamics is neglected/disabled for the moment)
 
 ### Features
 - Six model parameters (e.g. diffusion coefficient at the anode) can be set to be identified (over the NN training)
