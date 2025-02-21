@@ -327,7 +327,7 @@ def train(cfg, device, p):
                 hf.set_fig2(ax, 0, 1, t_data, css_p_data.detach().cpu().numpy(), css_p_sim, 'Css_p')
                 hf.set_fig2(ax, 1, 1, t_data, cs_bar_p_data.detach().cpu().numpy(), cs_ave_p_sim, 'Cs_ave_p')
                 hf.set_fig2(ax, 0, 2, t_data, vt_data.detach().cpu().numpy(), vt_sim, 'Voltage')
-                hf.set_fig(ax, 1, 2, losses[:epoch], 'epoch', 'loss', bottom=0.02, top=0.2)
+                hf.set_fig(ax, 1, 2, losses[:epoch], 'epoch', 'loss')
                 ax[1, 2].set_yscale("log")
                 # hf.set_fig(ax, 0, 3, nLi_hist[:epoch], 'epoch', 'nLi', p.nLi_s_true * np.ones(losses[:epoch].size))
                 # hf.set_fig(ax, 1, 3, R_f_n_hist[:epoch], 'epoch', 'R_f_n', p.R_f_n_true * np.ones(losses[:epoch].size))
@@ -340,7 +340,7 @@ def train(cfg, device, p):
                              f"noise = {cfg['noise']}, step size = {cfg['h']})")
                 # plt.show()
 
-                fig_name = "pinn_result_train_epoch" + str(epoch) + "_data" + str(data_id)
+                fig_name = "pinn_result_train_data" + str(data_id)
                 wandb.log({fig_name: plt}, commit=False)
                 if cfg['save']:
                     torch.save(nn_models[0].state_dict(),
@@ -451,7 +451,7 @@ def train(cfg, device, p):
             ax[2, 1].set_yscale("log")
             plt.suptitle(f"Estimated Initial conditions for validation data, lr= {cfg['lrate']}")
             # plt.show()
-            fig_name = "pinn_result_val_epoch" + str(epoch)
+            fig_name = "pinn_result_val"
             wandb.log({fig_name: plt}, commit=False)
 
         wandb.log({}, commit=True)
