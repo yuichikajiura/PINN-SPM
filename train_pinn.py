@@ -369,7 +369,7 @@ def train(cfg, device, p):
         wandb.log({"loss": loss, "loss_vt": loss_vt, "loss_nLi": loss_nLi, "loss_integ": loss_integ,
                    "nLi_scaled": integrator.nLi_s_scaled.data, "Rfn_scaled": integrator.R_f_n_scaled.data,
                    "Dsn_scaled": integrator.D_s_n_scaled.data, "Dsp_scaled": integrator.D_s_p_scaled.data,
-                   "kn_scaled": integrator.k_p_scaled.data, "kp_scaled": integrator.k_p_scaled.data}, commit=False)
+                   "kn_scaled": integrator.k_n_scaled.data, "kp_scaled": integrator.k_p_scaled.data}, commit=False)
 
         if epoch > cfg['decay_step']:
             for optimizer in optimizers:
