@@ -49,8 +49,8 @@ p_search_upper: 2 # upper bound for param search in ratio to original value
 p_search_lower: 0.5 # upper bound for param search in ratio to original value
 p_targets: # True if include as a target parameter to be estimated
   - True # nLi
-  - False # R_f_n
-  - True # k_n
-  - True # k_p
-  - True # D_s_n
-  - True # D_s_p
+  - True # R_f_n
+  - False # k_n
+  - False # k_p
+  - False # D_s_n
+  - False # D_s_p
