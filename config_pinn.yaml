@@ -6,7 +6,7 @@ suffix_nn: 'cell1_data1234'  # Suffix of filename for pre-trained NN
 load_pinn: False  # Load pre-trained PINN or not
 suffix_pinn: ''  # Suffix of filename for pre-trained PINN
 save: False  # Save PINN after training or not
-suffix_save: ''  # Suffix of filename for PINN to be saved
+suffix_save: 'two_params_ID'  # Suffix of filename for PINN to be saved
 
 # Network
 batches: 1  # Number of training batches
@@ -17,7 +17,7 @@ hidden_fc: 600  # Number of hidden nodes in FC layer
 epochs: 100000  # Number of training epochs
 lrate: 0.001  # Learning rate
 decay_step: 5000 # The number of steps after which the learning rate will decay
-decay_rate: 0.99995 # The rate learning rate decays per epoch
+decay_rate: 0.9999 # The rate learning rate decays per epoch
 activation: tanh  # Activation function (tanh or relu)
 seed: 1234  # Seed for random number generator in torch and numpy
 k: 100   # number of data points in inputs [i[t]...i[t+k], vt[t]...vt[t+k]] to predict initial cond z[t] and vc[t]
