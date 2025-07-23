@@ -313,7 +313,7 @@ def train(cfg, device, p):
                       f'D_s_n {np.round(100 * (integrator.p.D_s_n.detach().cpu().numpy() / p.D_s_n_true - 1))[0]}%, '
                       f'D_s_p {np.round(100 * (integrator.p.D_s_p.detach().cpu().numpy() / p.D_s_p_true - 1))[0]}% \n')
 
-            if epoch % 2500 == 1 or epoch == cfg['epochs'] - 1:
+            if epoch % 5000 == 1 or epoch == cfg['epochs'] - 1:
                 css_n_sim = css_n_sim_train_seq[start:end, cfg['k'] - 1]
                 cs_ave_n_sim = cs_ave_n_sim_train_seq[start:end, cfg['k'] - 1]
                 css_p_sim = css_p_sim_train_seq[start:end, cfg['k'] - 1]
@@ -376,7 +376,7 @@ def train(cfg, device, p):
                 for g in optimizer.param_groups:
                     g['lr'] = g['lr'] * cfg['decay_rate']
 
-        if epoch % 2500 == 1 or epoch == cfg['epochs'] - 1:
+        if epoch % 5000 == 1 or epoch == cfg['epochs'] - 1:
             max_batch_size = 5000
             with torch.no_grad():
                 x_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2)
