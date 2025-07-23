@@ -21,7 +21,7 @@ def set_fig(ax, row, col, y1, xlabel, ylabel, y2=None, y1label=None, y2label=Non
     ax[row, col].set_xlabel(xlabel)
     ax[row, col].set_ylabel(ylabel)
     ax[row, col].set_ylim(bottom=bottom, top=top)
-    ax[row, col].legend()
+    # ax[row, col].legend()
 
 
 def set_fig2(ax, row, col, x, y_est, y_true, ylabel, legend1='Estimated', legend2='True'):
