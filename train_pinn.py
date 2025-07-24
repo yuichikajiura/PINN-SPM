@@ -458,3 +458,80 @@ def train(cfg, device, p):
 
     elapsed = time.time() - start_time
     print('Training time: %.2f' % elapsed)
+
+    max_batch_size = 5000
+    with torch.no_grad():
+        x_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2)
+        x_seq_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2, l + 1)
+
+        for i in range(2):
+            state_start = i * (cfg['n_r'] - 1)
+            state_end = (i + 1) * (cfg['n_r'] - 1)
+            data_start = 0
+            for data in val_data_length:
+                data_end = data_start + data - 2 * cfg['k'] + 1
+                batch_start = data_start
+                batch_end = data_start
+                while batch_end < data_end:
+                    batch_end += max_batch_size
+                    batch_end = min(batch_end, data_end)
+                    x_val[batch_start:batch_end, state_start:state_end] = nn_models[i](
+                        u_val[batch_start:batch_end])
+                    batch_start = batch_end
+                data_start = data_end
+
+        x_seq_val[:, :, 0] = x_val
+        x_seq_val[:, :, 1:] = integrator(x_val, i_val_seq_sf_ave, l)
+
+        cs_n_seq_val, cs_p_seq_val = integrator.calc_css_and_cs0_seq(x_seq_val, i_val_seq_sampled)
+        css_n_seq_val = cs_n_seq_val[:, -1]
+        css_p_seq_val = cs_p_seq_val[:, -1]
+
+        cs_bar_n_seq_val = integrator.spm_model.calc_cs_bar_seq(cs_n_seq_val)
+        cs_bar_p_seq_val = integrator.spm_model.calc_cs_bar_seq(cs_p_seq_val)
+
+        vt_seq_val = integrator.spm_model.calc_voltage(css_n_seq_val, css_p_seq_val, p.c_e,
+                                                       i_val_seq_sampled,
+                                                       integrator.p.k_n, integrator.p.k_p,
+                                                       integrator.p.R_f_n)
+        loss_vt_val = torch.sqrt(mse(vt_seq_val, vt_sim_val_seq_sampled))
+
+        'Calculate loss if NN(I(t+k)) deviate from NN(I(t)) integrated over k time steps'
+        loss_integ_val = 0
+        for i in range(1, l):
+            cs_n_k_normalized = cs_n_seq_val[0:-l, :, i] / p.c_s_n_max
+            cs_p_k_normalized = cs_p_seq_val[0:-l, :, i] / p.c_s_p_max
+            cs_n_0_integrated_normalized = cs_n_seq_val[i:-(l - i), :, 0] / p.c_s_n_max
+            cs_p_0_integrated_normalized = cs_p_seq_val[i:-(l - i), :, 0] / p.c_s_p_max
+            loss_integ_n = torch.sqrt(mse(cs_n_k_normalized, cs_n_0_integrated_normalized) / l)
+            loss_integ_p = torch.sqrt(mse(cs_p_k_normalized, cs_p_0_integrated_normalized) / l)
+            loss_integ_val += loss_integ_n + loss_integ_p
+
+        nLi_n_seq = cs_bar_n_seq_val * p.epsilon_s_n * p.L_n * p.A_n
+        nLi_p_seq = cs_bar_p_seq_val * p.epsilon_s_p * p.L_p * p.A_p
+        nLi_seq = nLi_n_seq + nLi_p_seq
+        loss_nLi_val = torch.sqrt(mse(nLi_seq, integrator.p.nLi_s * torch.ones(nLi_seq.shape)))
+
+        loss_val = loss_vt_val + loss_nLi_val + loss_integ_val
+
+        print(f'loss_val = {loss_val}, loss_vt_val = {loss_vt_val}, loss_nLi_val = {loss_nLi_val}, '
+              f'loss_integ_val = {loss_integ_val}')
+
+    'Plots for validation data'
+    _, ax = plt.subplots(3, 2, figsize=(50, 10), layout="constrained")
+    hf.set_fig2(ax, 0, 0, t_val_seq[:, cfg['k'] - 1], css_n_seq_val[:, 0].detach().cpu().numpy(),
+                css_n_sim_val[cfg['k']:-cfg['k'] + 1], 'Css_n')
+    hf.set_fig2(ax, 0, 1, t_val_seq[:, cfg['k'] - 1], css_p_seq_val[:, 0].detach().cpu().numpy(),
+                css_p_sim_val[cfg['k']:-cfg['k'] + 1], 'Css_p')
+    hf.set_fig2(ax, 1, 0, t_val_seq[:, cfg['k'] - 1], cs_bar_n_seq_val[:, 0].detach().cpu().numpy(),
+                cs_ave_n_sim_val[cfg['k']:-cfg['k'] + 1], 'Cs_ave_n')
+    hf.set_fig2(ax, 1, 1, t_val_seq[:, cfg['k'] - 1], cs_bar_p_seq_val[:, 0].detach().cpu().numpy(),
+                cs_ave_p_sim_val[cfg['k']:-cfg['k'] + 1], 'Cs_ave_p')
+    hf.set_fig2(ax, 2, 0, t_val_seq[:, cfg['k'] - 1], vt_seq_val[:, 0].detach().cpu().numpy(),
+                vt_sim_val[cfg['k']:-cfg['k'] + 1], 'Vt')
+    hf.set_fig(ax, 2, 1, losses[:last_epoch], 'epoch', 'loss', val_losses[:last_epoch], 'training', 'validation',
+               bottom=0.01, top=1)
+    ax[2, 1].set_yscale("log")
+    plt.suptitle(f"Estimated Initial conditions for validation data, lr= {cfg['lrate']}")
+    plt.show()
+
