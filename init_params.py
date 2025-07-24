@@ -53,20 +53,20 @@ class InitParams:
             self.D_s_p_true = self.D_s_p
         else:  # degraded cell
             self.nLi_s_true = self.nLi_s * 0.8
-            self.R_f_n_true = self.R_f_n * 1.2
-            self.k_n_true = self.k_n * 0.8
-            self.k_p_true = self.k_p * 0.8
-            self.D_s_n_true = self.D_s_n * 0.8
-            self.D_s_p_true = self.D_s_p * 0.8
+            self.R_f_n_true = self.R_f_n * 40
+            self.k_n_true = self.k_n
+            self.k_p_true = self.k_p
+            self.D_s_n_true = self.D_s_n
+            self.D_s_p_true = self.D_s_p
 
         # Correct parameter if pre-trained NN is trained on degraded cell
         if cfg['cell_known'] == 2:  # degraded cell
             self.nLi_s = self.nLi_s * 0.8
-            self.R_f_n = self.R_f_n * 1.2
-            self.k_n = self.k_n * 0.8
-            self.k_p = self.k_p * 0.8
-            self.D_s_n = self.D_s_n * 0.8
-            self.D_s_p = self.D_s_p * 0.8
+            self.R_f_n = self.R_f_n * 40
+            self.k_n = self.k_n
+            self.k_p = self.k_p
+            self.D_s_n = self.D_s_n
+            self.D_s_p = self.D_s_p
 
         # Set true value if the parameter is not to be estimated
         if not cfg['p_targets'][0]:
