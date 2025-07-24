@@ -328,7 +328,7 @@ def train(cfg, device, p):
                 hf.set_fig2(ax, 1, 1, t_data, cs_bar_p_data.detach().cpu().numpy(), cs_ave_p_sim, 'Cs_ave_p')
                 hf.set_fig2(ax, 0, 2, t_data, vt_data.detach().cpu().numpy(), vt_sim, 'Voltage')
                 hf.set_fig(ax, 1, 2, losses[:epoch], 'epoch', 'loss')
-                ax[1, 2].set_yscale("log")
+                # ax[1, 2].set_yscale("log")
                 # hf.set_fig(ax, 0, 3, nLi_hist[:epoch], 'epoch', 'nLi', p.nLi_s_true * np.ones(losses[:epoch].size))
                 # hf.set_fig(ax, 1, 3, R_f_n_hist[:epoch], 'epoch', 'R_f_n', p.R_f_n_true * np.ones(losses[:epoch].size))
                 # hf.set_fig(ax, 2, 0, k_n_hist[:epoch], 'epoch', 'k_n', p.k_n_true * np.ones(losses[:epoch].size))
