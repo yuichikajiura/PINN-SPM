@@ -45,7 +45,7 @@ V_upper: 4.05
 V_lower: 2.5
 cell_known: 1  # 1 for fresh cell, 2 for degraded cell
 cell_target: 2  # 1 for fresh cell, 2 for degraded cell
-p_search_upper: 2 # upper bound for param search in ratio to original value
+p_search_upper: 400 # upper bound for param search in ratio to original value
 p_search_lower: 0.5 # upper bound for param search in ratio to original value
 p_targets: # True if include as a target parameter to be estimated
   - True # nLi
