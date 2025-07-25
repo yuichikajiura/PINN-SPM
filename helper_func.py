@@ -46,14 +46,14 @@ def load_data_spmfdm(data_type, states=False, cell=1):
     length = []
     if states:
         for j in data_type:
-            if j not in ["UDDS", "FUDS", "BJDST", "Charge", "Charge2", "US06_Extended"]:
+            if j not in ["UDDS", "FUDS", "BJDST", "Charge", "Charge2", "US06", "US06_Extended"]:
                 raise Exception("Data type not exist")
             data = pd.read_csv("data/SPM_FDM_nr20_simulation_"+ j +"_cell" + str(cell) + ".csv", header=None)
             df = pd.concat([df, data], ignore_index=True)
             length.append(len(data))
     else:
         for j in data_type:
-            if j not in ["UDDS", "FUDS", "BJDST", "Charge", "Charge2", "US06_Extended"]:
+            if j not in ["UDDS", "FUDS", "BJDST", "Charge", "Charge2", "US06", "US06_Extended"]:
                 raise Exception("Data type not exist")
             data = pd.read_csv("data/SPM_FDM_nr100_simulation_" + j + "_cell" + str(cell) + ".csv",
                                names=['Test_Time(s)', 'Current(A)', 'Voltage(V)', 'Css_n', 'Cs_ave_n', 'Css_p',

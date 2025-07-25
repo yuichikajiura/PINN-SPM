@@ -1,12 +1,12 @@
 method: pinn # pinn or nn
 
 # Load/Save
-load_nn: True  # Load pre-trained NN or not
+load_nn: False  # Load pre-trained NN or not
 suffix_nn: ''  # Suffix of filename for pre-trained NN
-load_pinn: False  # Load pre-trained PINN or not
+load_pinn: True  # Load pre-trained PINN or not
 suffix_pinn: 'two_params_ID'  # Suffix of filename for pre-trained PINN
-save: True  # Save PINN after training or not
-suffix_save: 'two_params_try2'  # Suffix of filename for PINN to be saved
+save: False  # Save PINN after training or not
+suffix_save: ''  # Suffix of filename for PINN to be saved
 
 # Network
 batches: 1  # Number of training batches
@@ -14,7 +14,7 @@ layer_lstm: 1  # Number of LSTM layer
 layer_fc: 1  # Number of FC layer
 hidden_lstm: 64  # Number of hidden nodes in LSTM layer
 hidden_fc: 600  # Number of hidden nodes in FC layer
-epochs: 50000  # Number of training epochs
+epochs: 30001  # Number of training epochs
 lrate: 0.001  # Learning rate
 decay_step: 5000 # The number of steps after which the learning rate will decay
 decay_rate: 0.9999 # The rate learning rate decays per epoch
@@ -31,8 +31,8 @@ train_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2,  US06_Extended
   - "BJDST"
   - "Charge"
   - "Charge2"
-val_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2, US06_Extended
-  - "US06_Extended"
+val_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2, US06, US06_Extended
+  - "US06"
 std_current: 38  # standard deviation of current data in Ampere (UDDS)
 std_voltage: 0.16   # standard deviation of voltage data in Volt (UDDS)
 noise: 0.03   # the magnitude of white noise to standard deviation of data

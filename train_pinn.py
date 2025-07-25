@@ -459,6 +459,8 @@ def train(cfg, device, p):
     elapsed = time.time() - start_time
     print('Training time: %.2f' % elapsed)
 
+    integrator.update_dynamics()
+
     max_batch_size = 5000
     with torch.no_grad():
         x_val = torch.zeros(u_val.shape[0], (cfg['n_r'] - 1) * 2)
