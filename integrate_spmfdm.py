@@ -12,7 +12,7 @@ class IntegrateSPM(nn.Module):
         self.n_r = cfg['n_r']
         self.p = p
         self.delta_r_bar = 1 / self.n_r
-        self.R_f_n_init = p.R_f_n
+        self.R_f_n_init = p.R_f_n * 10  # Assume Rfn has increased by at least an order of magnitude after degradation
         self.k_n_init = p.k_n
         self.k_p_init = p.k_p
         self.D_s_n_init = p.D_s_n

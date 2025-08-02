@@ -1,12 +1,12 @@
 method: pinn # pinn or nn
 
 # Load/Save
-load_nn: False  # Load pre-trained NN or not
-suffix_nn: ''  # Suffix of filename for pre-trained NN
-load_pinn: True  # Load pre-trained PINN or not
-suffix_pinn: 'two_params_ID'  # Suffix of filename for pre-trained PINN
-save: False  # Save PINN after training or not
-suffix_save: ''  # Suffix of filename for PINN to be saved
+load_nn: True  # Load pre-trained NN or not
+suffix_nn: 'cell1_data1234'  # Suffix of filename for pre-trained NN
+load_pinn: False  # Load pre-trained PINN or not
+suffix_pinn: ''  # Suffix of filename for pre-trained PINN
+save: True  # Save PINN after training or not
+suffix_save: '2paramID_10xRfn'  # Suffix of filename for PINN to be saved
 
 # Network
 batches: 1  # Number of training batches
@@ -14,7 +14,7 @@ layer_lstm: 1  # Number of LSTM layer
 layer_fc: 1  # Number of FC layer
 hidden_lstm: 64  # Number of hidden nodes in LSTM layer
 hidden_fc: 600  # Number of hidden nodes in FC layer
-epochs: 30001  # Number of training epochs
+epochs: 50000  # Number of training epochs
 lrate: 0.001  # Learning rate
 decay_step: 5000 # The number of steps after which the learning rate will decay
 decay_rate: 0.9999 # The rate learning rate decays per epoch
