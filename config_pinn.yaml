@@ -6,7 +6,7 @@ suffix_nn: 'cell1_data1234'  # Suffix of filename for pre-trained NN
 load_pinn: False  # Load pre-trained PINN or not
 suffix_pinn: ''  # Suffix of filename for pre-trained PINN
 save: True  # Save PINN after training or not
-suffix_save: '6paramID_10xRfn'  # Suffix of filename for PINN to be saved
+suffix_save: '4paramID_10xRfn'  # Suffix of filename for PINN to be saved
 
 # Network
 batches: 1  # Number of training batches
@@ -51,6 +51,6 @@ p_targets: # True if include as a target parameter to be estimated
   - True # nLi
   - True # R_f_n
   - True # k_n
-  - True # k_p
+  - False # k_p
   - True # D_s_n
-  - True # D_s_p
+  - False # D_s_p
