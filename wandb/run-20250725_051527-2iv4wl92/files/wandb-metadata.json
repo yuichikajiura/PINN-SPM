@@ -1,0 +1,38 @@
+{
+  "os": "macOS-12.7.6-x86_64-i386-64bit",
+  "python": "CPython 3.9.20",
+  "startedAt": "2025-07-24T20:15:28.059333Z",
+  "args": [
+    "config_pinn.yaml"
+  ],
+  "program": "/Users/yuichikajiura/PycharmProjects/PINN/main.py",
+  "codePath": "main.py",
+  "git": {
+    "remote": "https://github.com/yuichikajiura/PINN.git",
+    "commit": "3d0b4d1adfb77f606ad90fa14a3251d999f7db11"
+  },
+  "email": "yuichikajiura@gmail.com",
+  "root": "/Users/yuichikajiura/PycharmProjects/PINN",
+  "host": "MBP-3.local",
+  "executable": "/Users/yuichikajiura/PycharmProjects/PINN/venv/bin/python",
+  "codePathLocal": "main.py",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "500068036608",
+      "used": "298851434496"
+    },
+    "/System/Volumes/Data": {
+      "total": "500068036608",
+      "used": "298851434496"
+    }
+  },
+  "memory": {
+    "total": "17179869184"
+  },
+  "cpu": {
+    "count": 4,
+    "countLogical": 8
+  }
+}

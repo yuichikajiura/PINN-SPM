@@ -1,0 +1,8 @@
+Start training
+Training time: 0.00
+Traceback (most recent call last):
+  File "/Users/yuichikajiura/PycharmProjects/PINN/main.py", line 52, in <module>
+    train_pinn.train(cfg, device, p)
+  File "/Users/yuichikajiura/PycharmProjects/PINN/train_pinn.py", line 517, in train
+    val_losses[epoch] = loss_val.item()
+UnboundLocalError: local variable 'epoch' referenced before assignment

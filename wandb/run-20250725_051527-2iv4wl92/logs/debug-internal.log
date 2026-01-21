@@ -1,0 +1,15 @@
+{"time":"2025-07-25T05:15:28.059331+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.5","symlink path":"/Users/yuichikajiura/PycharmProjects/PINN/wandb/run-20250725_051527-2iv4wl92/logs/debug-core.log"}
+{"time":"2025-07-25T05:15:28.070448+09:00","level":"INFO","msg":"created new stream","id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:28.070553+09:00","level":"INFO","msg":"stream: started","id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:28.070591+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:28.07063+09:00","level":"INFO","msg":"sender: started","stream_id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:28.070787+09:00","level":"INFO","msg":"handler: started","stream_id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:28.602637+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-07-25T05:15:45.095852+09:00","level":"INFO","msg":"stream: closing","id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:45.095893+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-07-25T05:15:45.096082+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-07-25T05:15:46.179899+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-07-25T05:15:46.40139+09:00","level":"INFO","msg":"handler: closed","stream_id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:46.401412+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:46.401447+09:00","level":"INFO","msg":"sender: closed","stream_id":"2iv4wl92"}
+{"time":"2025-07-25T05:15:46.40176+09:00","level":"INFO","msg":"stream: closed","id":"2iv4wl92"}

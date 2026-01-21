@@ -1,0 +1,23 @@
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_setup.py:_flush():68] Current SDK version is 0.19.5
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_setup.py:_flush():68] Configure stats pid to 12634
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_setup.py:_flush():68] Loading settings from /Users/yuichikajiura/.config/wandb/settings
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_setup.py:_flush():68] Loading settings from /Users/yuichikajiura/PycharmProjects/PINN/wandb/settings
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_setup.py:_flush():68] Loading settings from environment variables
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_init.py:setup_run_log_directory():637] Logging user logs to /Users/yuichikajiura/PycharmProjects/PINN/wandb/run-20250725_052500-097tkaao/logs/debug.log
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_init.py:setup_run_log_directory():638] Logging internal logs to /Users/yuichikajiura/PycharmProjects/PINN/wandb/run-20250725_052500-097tkaao/logs/debug-internal.log
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_init.py:init():756] calling init triggers
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_init.py:init():761] wandb.init called with sweep_config: {}
+config: {'learning_rate': 0.001, 'epochs': 30001, '_wandb': {}}
+2025-07-25 05:25:00,299 INFO    MainThread:12634 [wandb_init.py:init():789] starting backend
+2025-07-25 05:25:00,531 INFO    MainThread:12634 [wandb_init.py:init():793] sending inform_init request
+2025-07-25 05:25:00,560 INFO    MainThread:12634 [backend.py:_multiprocessing_setup():97] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2025-07-25 05:25:00,561 INFO    MainThread:12634 [wandb_init.py:init():808] backend started and connected
+2025-07-25 05:25:00,568 INFO    MainThread:12634 [wandb_init.py:init():901] updated telemetry
+2025-07-25 05:25:00,689 INFO    MainThread:12634 [wandb_init.py:init():926] communicating run to backend with 90.0 second timeout
+2025-07-25 05:25:01,115 INFO    MainThread:12634 [wandb_init.py:init():984] starting run threads in backend
+2025-07-25 05:25:01,206 INFO    MainThread:12634 [wandb_run.py:_console_start():2385] atexit reg
+2025-07-25 05:25:01,206 INFO    MainThread:12634 [wandb_run.py:_redirect():2235] redirect: wrap_raw
+2025-07-25 05:25:01,206 INFO    MainThread:12634 [wandb_run.py:_redirect():2300] Wrapping output streams.
+2025-07-25 05:25:01,206 INFO    MainThread:12634 [wandb_run.py:_redirect():2325] Redirects installed.
+2025-07-25 05:25:01,210 INFO    MainThread:12634 [wandb_init.py:init():1026] run started, returning control to user process
+2025-07-25 08:49:05,412 WARNING MsgRouterThr:12634 [router.py:message_loop():75] message_loop has been closed

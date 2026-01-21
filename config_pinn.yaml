@@ -6,7 +6,7 @@ suffix_nn: 'cell1_data1234'  # Suffix of filename for pre-trained NN
 load_pinn: False  # Load pre-trained PINN or not
 suffix_pinn: ''  # Suffix of filename for pre-trained PINN
 save: True  # Save PINN after training or not
-suffix_save: '4paramID_10xRfn'  # Suffix of filename for PINN to be saved
+suffix_save: '4paramID_10xRfn_BJDST'  # Suffix of filename for PINN to be saved
 
 # Network
 batches: 1  # Number of training batches
@@ -26,11 +26,7 @@ integ_type: 1   # 0 for RK4 (default), 1 for Naive
 
 # Data
 train_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2,  US06_Extended
-  - "UDDS"
-  - "FUDS"
   - "BJDST"
-  - "Charge"
-  - "Charge2"
 val_data_type:  # UDDS, FUDS, BJDST, Charge, Charge2, US06, US06_Extended
   - "US06"
 std_current: 38  # standard deviation of current data in Ampere (UDDS)

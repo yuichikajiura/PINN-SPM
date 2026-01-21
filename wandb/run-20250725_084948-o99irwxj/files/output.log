@@ -1,0 +1,3 @@
+Start training
+Training time: 0.00
+loss_val = 0.40774285793304443, loss_vt_val = 0.0219612754881382, loss_nLi_val = 0.038685932755470276, loss_integ_val = 0.34709563851356506

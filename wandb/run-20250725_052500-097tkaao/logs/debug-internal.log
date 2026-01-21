@@ -1,0 +1,22 @@
+{"time":"2025-07-25T05:25:00.563192+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.5","symlink path":"/Users/yuichikajiura/PycharmProjects/PINN/wandb/run-20250725_052500-097tkaao/logs/debug-core.log"}
+{"time":"2025-07-25T05:25:00.570333+09:00","level":"INFO","msg":"created new stream","id":"097tkaao"}
+{"time":"2025-07-25T05:25:00.570416+09:00","level":"INFO","msg":"stream: started","id":"097tkaao"}
+{"time":"2025-07-25T05:25:00.570458+09:00","level":"INFO","msg":"sender: started","stream_id":"097tkaao"}
+{"time":"2025-07-25T05:25:00.570441+09:00","level":"INFO","msg":"handler: started","stream_id":"097tkaao"}
+{"time":"2025-07-25T05:25:00.570553+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"097tkaao"}
+{"time":"2025-07-25T05:25:01.119337+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-07-25T05:57:12.464569+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)"}
+{"time":"2025-07-25T05:57:44.723983+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": context deadline exceeded"}
+{"time":"2025-07-25T05:57:56.938096+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.1.8:53152->35.186.228.49:443: read: operation timed out"}
+{"time":"2025-07-25T08:11:22.705592+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.1.8:53556->35.186.228.49:443: read: operation timed out"}
+{"time":"2025-07-25T08:38:43.507088+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/yuichikajiura-university-of-oklahoma/PINN/097tkaao/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-07-25T08:38:45.555577+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/yuichikajiura-university-of-oklahoma/PINN/097tkaao/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-07-25T08:38:50.177082+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/yuichikajiura-university-of-oklahoma/PINN/097tkaao/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-07-25T08:38:59.26283+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/yuichikajiura-university-of-oklahoma/PINN/097tkaao/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-07-25T08:39:08.702927+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": net/http: request canceled (Client.Timeout exceeded while awaiting headers)"}
+{"time":"2025-07-25T08:39:13.5628+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.1.8:53836->35.186.228.49:443: read: can't assign requested address"}
+{"time":"2025-07-25T08:48:10.19254+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": net/http: request canceled (Client.Timeout exceeded while awaiting headers)"}
+{"time":"2025-07-25T08:48:37.443047+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 10.30.12.182:53879->35.186.228.49:443: read: can't assign requested address"}
+{"time":"2025-07-25T08:49:05.408332+09:00","level":"INFO","msg":"stream: closing","id":"097tkaao"}
+{"time":"2025-07-25T08:49:05.408672+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-07-25T08:49:05.408779+09:00","level":"INFO","msg":"Stopped system monitor"}

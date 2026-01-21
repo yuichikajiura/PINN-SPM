@@ -1,0 +1,19 @@
+Start training
+Training time: 0.00
+loss_val = 0.9267319440841675, loss_vt_val = 0.07539194822311401, loss_nLi_val = 0.5042443871498108, loss_integ_val = 0.34709563851356506
+Traceback (most recent call last):
+  File "/Users/yuichikajiura/PycharmProjects/PINN/main.py", line 52, in <module>
+    train_pinn.train(cfg, device, p)
+  File "/Users/yuichikajiura/PycharmProjects/PINN/train_pinn.py", line 536, in train
+    ax[2, 1].set_yscale("log")
+  File "/Users/yuichikajiura/PycharmProjects/PINN/venv/lib/python3.9/site-packages/matplotlib/pyplot.py", line 612, in show
+    return _get_backend_mod().show(*args, **kwargs)
+  File "/Users/yuichikajiura/PycharmProjects/PINN/venv/lib/python3.9/site-packages/matplotlib/backend_bases.py", line 3553, in show
+    cls.mainloop()
+  File "/Users/yuichikajiura/PycharmProjects/PINN/venv/lib/python3.9/site-packages/matplotlib/backends/backend_macosx.py", line 179, in start_main_loop
+    _macosx.show()
+  File "/usr/local/Cellar/python@3.9/3.9.20/Frameworks/Python.framework/Versions/3.9/lib/python3.9/contextlib.py", line 126, in __exit__
+    next(self.gen)
+  File "/Users/yuichikajiura/PycharmProjects/PINN/venv/lib/python3.9/site-packages/matplotlib/backend_bases.py", line 1672, in _allow_interrupt
+    old_sigint_handler(*handler_args)
+KeyboardInterrupt
