@@ -1,0 +1,9 @@
+# PINN-SPM dependencies
+# Python 3.8+ recommended; for GPU support install PyTorch from https://pytorch.org
+
+torch>=2.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+PyYAML>=6.0
+matplotlib>=3.7.0
+wandb>=0.15.0
