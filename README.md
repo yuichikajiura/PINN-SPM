@@ -136,4 +136,4 @@ Ensure **`n_r`** in the config matches the data files (e.g., 20 or 100).
 
 ## License
 
-This project is licensed under the **GNU General Public License v3.0** (GPL-3.0), in line with the license of [SPMeT](https://github.com/scott-moura/SPMeT), from which model parameters and references are derived. See [LICENSE](LICENSE) for the full text.
+This project is licensed under the **GNU General Public License v3.0** (GPL-3.0), in line with the license of [SPMeT](https://github.com/scott-moura/SPMeT), from which SPM model and model parameters are derived. See [LICENSE](LICENSE) for the full text.
