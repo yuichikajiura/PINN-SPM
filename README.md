@@ -1,6 +1,6 @@
 # PINN-SPM
 
-##Physics-Informed Neural Networks for Single Particle Model Parameter Identification and State Estimation
+## Physics-Informed Neural Networks for Single Particle Model Parameter Identification and State Estimation
 
 This repository implements a physics-informed learning framework that combines recurrent neural networks (LSTM) with a single particle model (SPM) of a lithium-ion battery. The framework jointly identifies battery model parameters and estimates internal states from current and voltage measurements, with optional transfer learning from a known (e.g., fresh) cell to an unknown (e.g., aged) cell.
 
